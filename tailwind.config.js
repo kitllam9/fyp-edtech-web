@@ -8,7 +8,6 @@ export default {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
     ],
-
     theme: {
         extend: {
             fontFamily: {
@@ -19,3 +18,21 @@ export default {
 
     plugins: [forms],
 };
+
+module.exports = {
+    darkMode: 'class',
+    content: [
+        "./resources/**/*.blade.php",
+        "./resources/**/*.js",
+        "./resources/**/*.vue",
+        "./node_modules/flowbite/**/*.js"
+    ],
+    theme: {
+        extend: {},
+    },
+    plugins: [
+        require('flowbite/plugin')({
+            datatables: true,
+        }),
+    ],
+}
