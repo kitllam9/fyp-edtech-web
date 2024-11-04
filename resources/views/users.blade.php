@@ -16,12 +16,9 @@
                 <table id="user-table" class="min-w-full divide-y divide-gray-200">
                     <thead>
                         <tr>
-                            <!-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Name
-                            </th> -->
                             <th>
                                 <span class="flex items-center">
-                                    Name
+                                    Username
                                     <svg class="w-4 h-4 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                                         width="24" height="24" fill="none" viewBox="0 0 24 24">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
@@ -36,10 +33,10 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                         @foreach($users as $user)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $user->name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $user->email }}</td>
-                            </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $user->username }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $user->email }}</td>
+                        </tr>
                         @endforeach
                     </tbody>
                 </table>
