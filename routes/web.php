@@ -1,18 +1,23 @@
 <?php
 
+use App\Http\Controllers\ContentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/content', function () {
-    return view('content');
-})->middleware(['auth', 'verified'])->name('content');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/', function () {
+        return view('dashboard');
+    })->name('dashboard');
+    Route::get('/users', [UserController::class, 'index'])->name('users');
 
-Route::get('/users', [UserController::class, 'index'])->middleware(['auth', 'verified'])->name('users');
+    Route::prefix('content')->group(function () {
+        Route::get('/', [ContentController::class, 'index'])->name('content');
+        Route::get('/create', [ContentController::class, 'create'])->name('content.create');
+        // Route::get('/', [ContentController::class, 'index'])->name('content');
+    });
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

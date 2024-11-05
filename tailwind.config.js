@@ -33,6 +33,8 @@ module.exports = {
     plugins: [
         require('flowbite/plugin')({
             datatables: true,
+            wysiwyg: true,
         }),
+        require('flowbite-typography'),
     ],
 }
