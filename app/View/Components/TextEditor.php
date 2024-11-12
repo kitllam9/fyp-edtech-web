@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class text-editor extends Component
+class TextEditor extends Component
 {
     /**
      * Create a new component instance.

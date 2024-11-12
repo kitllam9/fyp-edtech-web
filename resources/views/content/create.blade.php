@@ -55,7 +55,6 @@
     import Underline from 'https://esm.sh/@tiptap/extension-underline@2.6.6';
     import Link from 'https://esm.sh/@tiptap/extension-link@2.6.6';
     import TextAlign from 'https://esm.sh/@tiptap/extension-text-align@2.6.6';
-    import HorizontalRule from 'https://esm.sh/@tiptap/extension-horizontal-rule@2.6.6';
     import Image from 'https://esm.sh/@tiptap/extension-image@2.6.6';
     import YouTube from 'https://esm.sh/@tiptap/extension-youtube@2.6.6';
     import TextStyle from 'https://esm.sh/@tiptap/extension-text-style@2.6.6';
@@ -120,14 +119,13 @@
                 extensions: [
                     // Exclude the default Bold mark
                     StarterKit.configure({
-                        marks: {
-                            bold: false,
-                        },
+                        bold: false,
                     }),
                     CustomBold,
-                    TextStyle,
                     Color,
-                    FontSizeTextStyle,
+                    FontSizeTextStyle.configure({
+                        textStyle: false,
+                    }),
                     FontFamily,
                     Highlight,
                     Underline,
@@ -139,9 +137,7 @@
                     TextAlign.configure({
                         types: ['heading', 'paragraph'],
                     }),
-                    HorizontalRule,
                     Image,
-                    YouTube,
                 ],
                 editorProps: {
                     attributes: {
