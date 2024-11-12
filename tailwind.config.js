@@ -25,16 +25,16 @@ module.exports = {
         "./resources/**/*.blade.php",
         "./resources/**/*.js",
         "./resources/**/*.vue",
-        "./node_modules/flowbite/**/*.js"
+        "./node_modules/flowbite/**/*.js",
     ],
     theme: {
         extend: {},
     },
     plugins: [
+        require('flowbite-typography'),
         require('flowbite/plugin')({
             datatables: true,
             wysiwyg: true,
         }),
-        require('flowbite-typography'),
     ],
 }

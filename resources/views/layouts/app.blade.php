@@ -11,12 +11,9 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
 
     <script>
         if (localStorage.getItem('dark-mode') === 'true' || (!('dark-mode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -25,6 +22,19 @@
             document.querySelector('html').classList.remove('dark');
         }
     </script>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "https://esm.sh/v135/prosemirror-model@1.23.0/es2021/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2021/prosemirror-model.mjs",
+                "https://esm.sh/v135/prosemirror-model@1.22.3/es2021/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2021/prosemirror-model.mjs",
+                "https://esm.sh/v135/prosemirror-model@1.22.2/es2021/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2021/prosemirror-model.mjs",
+                "https://esm.sh/v135/prosemirror-model@1.22.1/es2021/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2021/prosemirror-model.mjs",
+                "https://esm.sh/v135/prosemirror-model@1.21.3/es2021/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2021/prosemirror-model.mjs"
+            }
+        }
+    </script>
+
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
