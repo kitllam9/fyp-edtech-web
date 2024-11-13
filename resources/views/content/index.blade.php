@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Content') }}
+            {{ __('Materials') }}
         </h2>
     </x-slot>
 
@@ -36,6 +36,15 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Type
                             </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                URL
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Created At
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Updated At
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
@@ -43,6 +52,9 @@
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $c->title }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $c->type }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $c->pdf_url ? $c->pdf_url : '' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $c->created_at }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $c->updated_at }}</td>
                         </tr>
                         @endforeach
                     </tbody>

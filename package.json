@@ -19,6 +19,7 @@
         "vite": "^5.0"
     },
     "dependencies": {
-        "flowbite-typography": "^1.0.4"
+        "flowbite-typography": "^1.0.4",
+        "puppeteer": "^23.7.1"
     }
 }

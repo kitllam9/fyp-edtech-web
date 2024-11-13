@@ -7,7 +7,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/', function () {
         return view('dashboard');
     })->name('dashboard');
@@ -16,7 +16,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('content')->group(function () {
         Route::get('/', [ContentController::class, 'index'])->name('content');
         Route::get('/create', [ContentController::class, 'create'])->name('content.create');
-        // Route::get('/', [ContentController::class, 'index'])->name('content');
+        Route::post('/store', [ContentController::class, 'store'])->name('content.store');
     });
 
     Route::prefix('quest')->group(function () {

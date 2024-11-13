@@ -26,11 +26,11 @@
     <script type="importmap">
         {
             "imports": {
-                "https://esm.sh/v135/prosemirror-model@1.23.0/es2021/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2021/prosemirror-model.mjs",
-                "https://esm.sh/v135/prosemirror-model@1.22.3/es2021/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2021/prosemirror-model.mjs",
-                "https://esm.sh/v135/prosemirror-model@1.22.2/es2021/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2021/prosemirror-model.mjs",
-                "https://esm.sh/v135/prosemirror-model@1.22.1/es2021/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2021/prosemirror-model.mjs",
-                "https://esm.sh/v135/prosemirror-model@1.21.3/es2021/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2021/prosemirror-model.mjs"
+                "https://esm.sh/v135/prosemirror-model@1.23.0/es2022/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2022/prosemirror-model.mjs",
+                "https://esm.sh/v135/prosemirror-model@1.22.3/es2022/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2022/prosemirror-model.mjs",
+                "https://esm.sh/v135/prosemirror-model@1.22.2/es2022/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2022/prosemirror-model.mjs",
+                "https://esm.sh/v135/prosemirror-model@1.22.1/es2022/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2022/prosemirror-model.mjs",
+                "https://esm.sh/v135/prosemirror-model@1.21.0/es2022/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2022/prosemirror-model.mjs"
             }
         }
     </script>
