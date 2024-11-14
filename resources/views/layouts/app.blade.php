@@ -23,18 +23,36 @@
         }
     </script>
 
-    <script type="importmap">
-        {
-            "imports": {
-                "https://esm.sh/v135/prosemirror-model@1.23.0/es2022/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2022/prosemirror-model.mjs",
-                "https://esm.sh/v135/prosemirror-model@1.22.3/es2022/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2022/prosemirror-model.mjs",
-                "https://esm.sh/v135/prosemirror-model@1.22.2/es2022/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2022/prosemirror-model.mjs",
-                "https://esm.sh/v135/prosemirror-model@1.22.1/es2022/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2022/prosemirror-model.mjs",
-                "https://esm.sh/v135/prosemirror-model@1.21.0/es2022/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2022/prosemirror-model.mjs"
-            }
-        }
-    </script>
+    <script>
+        // Define the default import map and the Opera-specific import map
+        const isOpera = navigator.userAgent.includes("OPR");
 
+        const defaultImportMap = {
+            imports: {
+                "https://esm.sh/v135/prosemirror-model@1.21.0/es2022/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2022/prosemirror-model.mjs",
+                "https://esm.sh/v135/prosemirror-model@1.22.1/es2022/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2022/prosemirror-model.mjs",
+                "https://esm.sh/v135/prosemirror-model@1.22.2/es2022/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2022/prosemirror-model.mjs",
+                "https://esm.sh/v135/prosemirror-model@1.22.3/es2022/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2022/prosemirror-model.mjs",
+                "https://esm.sh/v135/prosemirror-model@1.23.0/es2022/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2022/prosemirror-model.mjs"
+            }
+        };
+
+        const operaImportMap = {
+            imports: {
+                "https://esm.sh/v135/prosemirror-model@1.21.3/es2021/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2021/prosemirror-model.mjs",
+                "https://esm.sh/v135/prosemirror-model@1.22.1/es2021/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2021/prosemirror-model.mjs",
+                "https://esm.sh/v135/prosemirror-model@1.22.3/es2021/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2021/prosemirror-model.mjs",
+                "https://esm.sh/v135/prosemirror-model@1.23.0/es2021/prosemirror-model.mjs": "https://esm.sh/v135/prosemirror-model@1.19.3/es2021/prosemirror-model.mjs"
+            }
+        };
+
+        const importMap = isOpera ? operaImportMap : defaultImportMap;
+
+        const script = document.createElement('script');
+        script.type = 'importmap';
+        script.textContent = JSON.stringify(importMap);
+        document.head.appendChild(script);
+    </script>
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])

@@ -15,6 +15,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('content')->group(function () {
         Route::get('/', [ContentController::class, 'index'])->name('content');
+        Route::post('/temp', [ContentController::class, 'temp'])->name('content.temp');
         Route::get('/create', [ContentController::class, 'create'])->name('content.create');
         Route::post('/store', [ContentController::class, 'store'])->name('content.store');
     });

@@ -5,7 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Content;
 use App\Http\Requests\StoreContentRequest;
 use App\Http\Requests\UpdateContentRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\View;
 use Spatie\LaravelPdf\Facades\Pdf;
+use Spatie\LaravelPdf\Enums\Unit;
 
 class ContentController extends Controller
 {
@@ -47,21 +51,34 @@ class ContentController extends Controller
             $snake_title = preg_replace('/[^a-zA-Z0-9]/', '_', $snake_title); // Replace non-alphanumeric characters with underscores
             $snake_title = preg_replace('/(?<=\\w)(?=[A-Z])/', "_$1", $snake_title); // Insert underscores before uppercase letters
             strtolower($snake_title);
-    
+
             $pdfFilePath = public_path('pdf/' . $snake_title . '.pdf');
-            Pdf::html($request->input('pdf_content'))->save($pdfFilePath);
+
+            // Generate PDF from the temporary Blade view
+            Pdf::View('content.temp', ['content' => $request->input('pdf_content')])
+                ->margins(64, 64, 64, 64, Unit::Pixel)
+                ->save($pdfFilePath);
+
 
             // Get the URL of the saved PDF file
             $pdfUrl = asset('pdf/' . $snake_title . '.pdf');
         }
 
         Content::create([
-            'title'=> $request->input('title'),
-            'description'=> $request->input('description'),
-            'type'=> $request->input('type'),
-            'pdf_url'=> $pdfUrl,
+            'title' => $request->input('title'),
+            'description' => $request->input('description'),
+            'type' => $request->input('type'),
+            'pdf_url' => $pdfUrl,
         ]);
-        return response()->json(['message' => 'Materials created successfully'], 201);
+
+        return redirect()->route('content.create');
+    }
+
+    public function temp(Request $request)
+    {
+        return view('content.temp', [
+            'content' => $request->input('content'),
+        ]);
     }
 
     /**

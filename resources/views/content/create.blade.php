@@ -33,7 +33,7 @@
                         <x-select id="type" name="type" class="mt-2" :options="$types" />
                     </div>
                     <div class="mb-4">
-                        <x-text-editor id="content"/>
+                        <x-text-editor id="content" />
                         <input type="hidden" name="pdf_content" id="pdf_content" value="">
                     </div>
                     <x-primary-button>
@@ -146,7 +146,7 @@
                 }
             });
 
-            
+
             // set up custom event listeners for the buttons
             document.getElementById('toggleBoldButton').addEventListener('click', () => editor.chain().focus().toggleBold().run());
             document.getElementById('toggleItalicButton').addEventListener('click', () => editor.chain().focus().toggleItalic().run());
@@ -283,18 +283,17 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: '{{ route('content.store') }}',
+                    url: "{{ route('content.store') }}",
                     data: formData,
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
-                        // Handle validation success
-                        console.log(response);
+                        window.location.href = "{{ route('content') }}";
                     },
                     error: function(xhr) {
                         var errors = xhr.responseJSON.errors;
-                        
+
                         // Loop through the errors object and display each error
                         $.each(errors, function(key, value) {
                             // Display the error messages as you like
@@ -305,5 +304,4 @@
             });
         }
     })
-
 </script>
