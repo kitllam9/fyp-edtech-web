@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Materials') }}
+            {{ __('Content') }}
         </h2>
     </x-slot>
 
@@ -45,6 +45,9 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Updated At
                             </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
@@ -55,6 +58,15 @@
                             <td class="px-6 py-4 whitespace-nowrap">{{ $c->pdf_url ? $c->pdf_url : '' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $c->created_at }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $c->updated_at }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <form method="POST" action="{{ route('content.delete', $c) }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <x-danger-button>
+                                        <i class="material-icons">&#xe872;</i>
+                                    </x-danger-button>
+                                </form>
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>

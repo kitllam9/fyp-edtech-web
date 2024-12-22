@@ -1,7 +1,11 @@
 <x-app-layout>
+    <div id="loader-overlay">
+        <div id="loader"></div>
+    </div>
+
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Materials') }}
+            {{ __('Content') }}
         </h2>
     </x-slot>
 
@@ -44,6 +48,80 @@
         </div>
     </div>
 </x-app-layout>
+
+<style>
+    #loader-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        display: none;
+    }
+
+    #loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: -20px;
+        margin-top: -20px;
+        width: 40px;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        border: 5px solid #000000;
+        animation: l20-1 0.8s infinite linear alternate, l20-2 1.6s infinite linear;
+    }
+
+    @keyframes l20-1 {
+        0% {
+            clip-path: polygon(50% 50%, 0 0, 50% 0%, 50% 0%, 50% 0%, 50% 0%, 50% 0%)
+        }
+
+        12.5% {
+            clip-path: polygon(50% 50%, 0 0, 50% 0%, 100% 0%, 100% 0%, 100% 0%, 100% 0%)
+        }
+
+        25% {
+            clip-path: polygon(50% 50%, 0 0, 50% 0%, 100% 0%, 100% 100%, 100% 100%, 100% 100%)
+        }
+
+        50% {
+            clip-path: polygon(50% 50%, 0 0, 50% 0%, 100% 0%, 100% 100%, 50% 100%, 0% 100%)
+        }
+
+        62.5% {
+            clip-path: polygon(50% 50%, 100% 0, 100% 0%, 100% 0%, 100% 100%, 50% 100%, 0% 100%)
+        }
+
+        75% {
+            clip-path: polygon(50% 50%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 50% 100%, 0% 100%)
+        }
+
+        100% {
+            clip-path: polygon(50% 50%, 50% 100%, 50% 100%, 50% 100%, 50% 100%, 50% 100%, 0% 100%)
+        }
+    }
+
+    @keyframes l20-2 {
+        0% {
+            transform: scaleY(1) rotate(0deg)
+        }
+
+        49.99% {
+            transform: scaleY(1) rotate(135deg)
+        }
+
+        50% {
+            transform: scaleY(-1) rotate(0deg)
+        }
+
+        100% {
+            transform: scaleY(-1) rotate(-135deg)
+        }
+    }
+</style>
 
 <script type="module">
     import {
@@ -277,6 +355,9 @@
 
             $('#create_materials').submit(function(e) {
                 e.preventDefault();
+
+                $('#loader-overlay').show();
+
                 var input = $("#pdf_content");
                 input.attr('value', editor.getHTML());
                 var formData = $(this).serialize();
@@ -289,9 +370,13 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
+                        $('#loader-overlay').hide();
+
                         window.location.href = "{{ route('content') }}";
                     },
                     error: function(xhr) {
+                        $('#loader-overlay').hide();
+
                         var errors = xhr.responseJSON.errors;
 
                         // Loop through the errors object and display each error
@@ -302,6 +387,12 @@
                     }
                 });
             });
+
+            if ($('html').hasClass('dark')) {
+                $('#loader').css('border-color', '#FFFFFF');
+            } else {
+                $('#loader').css('border-color', '#000000');
+            }
         }
     })
 </script>

@@ -6,10 +6,9 @@ use App\Models\Content;
 use App\Http\Requests\StoreContentRequest;
 use App\Http\Requests\UpdateContentRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\View;
 use Spatie\LaravelPdf\Facades\Pdf;
 use Spatie\LaravelPdf\Enums\Unit;
+use Illuminate\Support\Facades\Storage;
 
 class ContentController extends Controller
 {
@@ -110,6 +109,18 @@ class ContentController extends Controller
      */
     public function destroy(Content $content)
     {
-        //
+        $path = parse_url($content->pdf_url, PHP_URL_PATH);
+        $segments = explode('/', $path);
+        $fileToDelete = end($segments);
+
+        $filePath = public_path("pdf" . "\\" . $fileToDelete);
+
+        if (file_exists($filePath)) {
+            // Delete the file
+            unlink($filePath);
+        }
+
+        $content->delete();
+        return redirect()->route('content');
     }
 }

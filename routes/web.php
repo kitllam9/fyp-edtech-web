@@ -18,6 +18,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/temp', [ContentController::class, 'temp'])->name('content.temp');
         Route::get('/create', [ContentController::class, 'create'])->name('content.create');
         Route::post('/store', [ContentController::class, 'store'])->name('content.store');
+        Route::delete('/delete/{content}', [ContentController::class, 'destroy'])->name('content.delete');
     });
 
     Route::prefix('quest')->group(function () {

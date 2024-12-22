@@ -19,7 +19,7 @@
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('content')" :active="request()->routeIs('content')">
-                        {{ __('Materials') }}
+                        {{ __('Content') }}
                     </x-nav-link>
                 </div>
 
