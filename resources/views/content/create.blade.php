@@ -34,11 +34,52 @@
                         <x-input-label>
                             {{ __('Type') }}
                         </x-input-label>
-                        <x-select id="type" name="type" class="mt-2" :options="$types" />
+                        <x-select id="type" name="type" class="mt-2" :options="$content_types" />
                     </div>
-                    <div class="mb-4">
+                    <div class="mb-4 text-editor-section">
                         <x-text-editor id="content" />
                         <input type="hidden" name="pdf_content" id="pdf_content" value="">
+                    </div>
+                    <div class="mb-4 table-section hidden">
+                        <table id="data-table" class="table-auto bg-white dark:bg-gray-800">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-2">
+                                        <x-input-label>
+                                            {{ __('Question') }}
+                                        </x-input-label>
+                                    </th>
+                                    <th class="px-4 py-2">
+                                        <x-input-label>
+                                            {{ __('Type') }}
+                                        </x-input-label>
+                                    </th>
+                                    <th class="px-4 py-2">
+                                        <x-input-label>
+                                            {{ __('Answer') }}
+                                        </x-input-label>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="px-4 py-2">
+                                        <x-textarea name="question[0]"></x-textarea>
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        <x-select id="_type" name="_type" :options="$question_types" />
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        <x-textarea name="answer[0]"></x-textarea>
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        <x-success-button class="add-row">
+                                            <i class="material-icons">&#xe145;</i>
+                                        </x-success-button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                     <x-primary-button>
                         {{ __('Submit') }}
@@ -393,6 +434,41 @@
             } else {
                 $('#loader').css('border-color', '#000000');
             }
+
+            $(document).on('click', '.add-row', function() {
+                var index = $('#data-table tbody tr').length;
+                var newRow = '<tr>' +
+                    '<td class="px-4 py-2"><x-textarea name="question[' + index + ']"></x-textarea></td>' +
+                    '<td class="px-4 py-2"><x-textarea name="answer[' + index + ']"></x-textarea></td>' +
+                    '<td class="px-4 py-2">' +
+                    `<x-success-button class="add-row">
+                        <i class="material-icons">&#xe145\;</i>
+                    </x-success-button>
+                    </td>
+                    <td class="px-4 py-2">
+                    <x-danger-button class="remove-row">
+                        <i class="material-icons">&#xe872\;</i>
+                    </x-danger-button>` +
+                    '</td>' +
+                    '</tr>';
+                $('#data-table tbody').append(newRow);
+            });
+
+            $(document).on('click', '.remove-row', function() {
+                $(this).closest('tr').remove();
+            });
+
+            // Listen for change in the "type" select input
+            $('#type').on('change', function() {
+                var selectedType = $('#type').val();
+                if (selectedType === 'notes') {
+                    $('.text-editor-section').show();
+                    $('.table-section').hide();
+                } else {
+                    $('.text-editor-section').hide();
+                    $('.table-section').show();
+                }
+            });
         }
     })
 </script>

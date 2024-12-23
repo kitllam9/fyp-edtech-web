@@ -26,9 +26,13 @@ class ContentController extends Controller
     public function create()
     {
         return view('content.create', [
-            'types' => [
+            'content_types' => [
                 'notes' => 'Notes',
                 'exercise' => 'Exercise'
+            ],
+            "question_types" => [
+                'short' => 'Short Question',
+                'mc' => 'Multiple Choice'
             ]
         ]);
     }
