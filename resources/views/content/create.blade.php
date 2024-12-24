@@ -41,38 +41,91 @@
                         <input type="hidden" name="pdf_content" id="pdf_content" value="">
                     </div>
                     <div class="mb-4 table-section hidden">
-                        <table id="data-table" class="table-auto bg-white dark:bg-gray-800">
+                        <table id="data-table" class="table-auto border-collapse w-full bg-white dark:bg-gray-800 ">
                             <thead>
                                 <tr>
-                                    <th class="px-4 py-2">
+                                    <th class="px-4 py-3 border">
                                         <x-input-label>
                                             {{ __('Question') }}
                                         </x-input-label>
                                     </th>
-                                    <th class="px-4 py-2">
+                                    <th class="px-4 py-3 border">
                                         <x-input-label>
                                             {{ __('Type') }}
                                         </x-input-label>
                                     </th>
-                                    <th class="px-4 py-2">
+                                    <th class="px-4 py-3 border">
                                         <x-input-label>
                                             {{ __('Answer') }}
                                         </x-input-label>
                                     </th>
+                                    <th class="px-4 py-3 border">
+                                        <x-input-label>
+                                            {{ __('Actions') }}
+                                        </x-input-label>
+                                    </th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="main-table">
                                 <tr>
-                                    <td class="px-4 py-2">
+                                    <td class="px-4 py-2 border">
                                         <x-textarea name="question[0]"></x-textarea>
                                     </td>
-                                    <td class="px-4 py-2">
-                                        <x-select id="_type" name="_type" :options="$question_types" />
+                                    <td class="px-4 py-2 border">
+                                        <x-select class="question-type" name="_type" :options="$question_types" />
                                     </td>
-                                    <td class="px-4 py-2">
+                                    <td class="short-answer px-4 py-2 border">
                                         <x-textarea name="answer[0]"></x-textarea>
                                     </td>
-                                    <td class="px-4 py-2">
+                                    <td class="mc-table px-4 py-2 hidden border">
+                                        <table class="table-auto w-full bg-white dark:bg-gray-800">
+                                            <tr>
+                                                <td class="px-4 py-1">
+                                                    <x-input-label>A</x-input-label>
+                                                </td>
+                                                <td class="px-4 py-1">
+                                                    <x-textarea name="mc[0][0]"></x-textarea>
+                                                </td>
+                                                <td>
+                                                    <input type="radio" name="correct[0]" value="A" checked class="ml-2">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-4 py-1">
+                                                    <x-input-label>B</x-input-label>
+                                                </td>
+                                                <td class="px-4 py-1">
+                                                    <x-textarea name="mc[0][1]"></x-textarea>
+                                                </td>
+                                                <td>
+                                                    <input type="radio" name="correct[0]" value="B" class="ml-2">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-4 py-1">
+                                                    <x-input-label>C</x-input-label>
+                                                </td>
+                                                <td class="px-4 py-1">
+                                                    <x-textarea name="mc[0][2]"></x-textarea>
+                                                </td>
+                                                <td>
+                                                    <input type="radio" name="correct[0]" value="C" class="ml-2">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-4 py-1">
+                                                    <x-input-label>D</x-input-label>
+                                                </td>
+                                                <td class="px-4 py-1">
+                                                    <x-textarea name="mc[0][3]"></x-textarea>
+                                                </td>
+                                                <td>
+                                                    <input type="radio" name="correct[0]" value="B" class="ml-2">
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td class="px-4 py-2 border">
                                         <x-success-button class="add-row">
                                             <i class="material-icons">&#xe145;</i>
                                         </x-success-button>
@@ -435,23 +488,89 @@
                 $('#loader').css('border-color', '#000000');
             }
 
-            $(document).on('click', '.add-row', function() {
-                var index = $('#data-table tbody tr').length;
+            var rowIndex = 1;
+
+            function addNewRow() {
                 var newRow = '<tr>' +
-                    '<td class="px-4 py-2"><x-textarea name="question[' + index + ']"></x-textarea></td>' +
-                    '<td class="px-4 py-2"><x-textarea name="answer[' + index + ']"></x-textarea></td>' +
-                    '<td class="px-4 py-2">' +
-                    `<x-success-button class="add-row">
-                        <i class="material-icons">&#xe145\;</i>
-                    </x-success-button>
-                    </td>
-                    <td class="px-4 py-2">
-                    <x-danger-button class="remove-row">
-                        <i class="material-icons">&#xe872\;</i>
-                    </x-danger-button>` +
+                    '<td class="px-4 py-2 border">' +
+                    '<x-textarea name="question[' + rowIndex + ']"></x-textarea>' +
+                    '</td>' +
+                    '<td class="px-4 py-2 border">' +
+                    `<x-select class="question-type" name="_type" :options="$question_types" />` +
+                    '</td>' +
+                    '<td class="short-answer px-4 py-2 border">' +
+                    '<x-textarea name="answer[' + rowIndex + ']"></x-textarea>' +
+                    '</td>' +
+                    '<td class="mc-table px-4 py-2 hidden border">' +
+                    '<table class="table-auto w-full bg-white dark:bg-gray-800">' +
+                    '<tr>' +
+                    '<td class="px-4 py-1">' +
+                    `<x-input-label>A</x-input-label>` +
+                    '</td>' +
+                    '<td class="px-4 py-1">' +
+                    '<x-textarea name="mc[' + rowIndex + '][0]"></x-textarea>' +
+                    '</td>' +
+                    '<td>' +
+                    '<input type="radio" name="correct[' + rowIndex + ']" value="A" checked class="ml-2">' +
+                    '</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td class="px-4 py-1">' +
+                    `<x-input-label>B</x-input-label>` +
+                    '</td>' +
+                    '<td class="px-4 py-1">' +
+                    '<x-textarea name="mc[' + rowIndex + '][1]"></x-textarea>' +
+                    '</td>' +
+                    '<td>' +
+                    '<input type="radio" name="correct[' + rowIndex + ']" value="B" class="ml-2">' +
+                    '</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td class="px-4 py-1">' +
+                    `<x-input-label>C</x-input-label>` +
+                    '</td>' +
+                    '<td class="px-4 py-1">' +
+                    '<x-textarea name="mc[' + rowIndex + '][2]"></x-textarea>' +
+                    '</td>' +
+                    '<td>' +
+                    '<input type="radio" name="correct[' + rowIndex + ']" value="C" class="ml-2">' +
+                    '</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td class="px-4 py-1">' +
+                    `<x-input-label>D</x-input-label>` +
+                    '</td>' +
+                    '<td class="px-4 py-1">' +
+                    '<x-textarea name="mc[' + rowIndex + '][3]"></x-textarea>' +
+                    '</td>' +
+                    '<td>' +
+                    '<input type="radio" name="correct[' + rowIndex + ']" value="D" class="ml-2">' +
+                    '</td>' +
+                    '</tr>' +
+                    '</table>' +
+                    '</td>' +
+                    '<td class="px-4 py-2 border">' +
+                    '<table class="table-auto w-full bg-white dark:bg-gray-800">' +
+                    '<tr>' +
+                    '<td>' +
+                    `<x-success-button class="add-row"><i class="material-icons">&#xe145;</i></x-success-button>` +
+                    '</td>' +
+                    '<td>' +
+                    `<x-danger-button class="remove-row"><i class="material-icons">&#xe872;</i></x-danger-button>` +
+                    '</td>' +
+                    '</tr>' +
+                    '</table>' +
                     '</td>' +
                     '</tr>';
-                $('#data-table tbody').append(newRow);
+
+                $('#data-table .main-table').append(newRow);
+                rowIndex++; // Increment row index for the next row
+            }
+
+            $(document).on('click', '.add-row', function(event) {
+                event.preventDefault(); // Prevent default click event behavior
+                $(this).off('click'); // Unbind the click event
+                addNewRow(); // Add a new row
             });
 
             $(document).on('click', '.remove-row', function() {
@@ -467,6 +586,24 @@
                 } else {
                     $('.text-editor-section').hide();
                     $('.table-section').show();
+                }
+            });
+            $(document).on('change', '.question-type', function() {
+                var selectedType = $(this).val();
+
+                // Find the closest parent <tr> element
+                var parentRow = $(this).closest('tr');
+
+                // Find the nearest .short-answer and .mc-table elements within the same row
+                var shortAnswer = parentRow.find('.short-answer');
+                var mcTable = parentRow.find('.mc-table');
+
+                if (selectedType === 'short') {
+                    shortAnswer.show();
+                    mcTable.hide();
+                } else {
+                    shortAnswer.hide();
+                    mcTable.show();
                 }
             });
         }
