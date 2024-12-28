@@ -41,25 +41,25 @@
                         <input type="hidden" name="pdf_content" id="pdf_content" value="">
                     </div>
                     <div class="mb-4 table-section hidden">
-                        <table id="data-table" class="table-auto border-collapse w-full bg-white dark:bg-gray-800 ">
+                        <table id="data-table" class="table-auto border-collapse w-full bg-white dark:bg-gray-900">
                             <thead>
                                 <tr>
-                                    <th class="px-4 py-3 border">
+                                    <th class="px-4 py-3 border border-gray-300 dark:border-gray-700">
                                         <x-input-label>
                                             {{ __('Question') }}
                                         </x-input-label>
                                     </th>
-                                    <th class="px-4 py-3 border">
+                                    <th class="px-4 py-3 border border-gray-300 dark:border-gray-700">
                                         <x-input-label>
                                             {{ __('Type') }}
                                         </x-input-label>
                                     </th>
-                                    <th class="px-4 py-3 border">
+                                    <th class="px-4 py-3 border border-gray-300 dark:border-gray-700">
                                         <x-input-label>
                                             {{ __('Answer') }}
                                         </x-input-label>
                                     </th>
-                                    <th class="px-4 py-3 border">
+                                    <th class="px-4 py-3 border border-gray-300 dark:border-gray-700">
                                         <x-input-label>
                                             {{ __('Actions') }}
                                         </x-input-label>
@@ -67,18 +67,18 @@
                                 </tr>
                             </thead>
                             <tbody class="main-table">
-                                <tr>
-                                    <td class="px-4 py-2 border">
+                                <tr class="main-row">
+                                    <td class="px-4 py-3 border border-gray-300 dark:border-gray-700">
                                         <x-textarea name="question[0]"></x-textarea>
                                     </td>
-                                    <td class="px-4 py-2 border">
-                                        <x-select class="question-type" name="_type" :options="$question_types" />
+                                    <td class="px-4 py-3 border border-gray-300 dark:border-gray-700">
+                                        <x-select class="question-type" name="question_type[0]" :options="$question_types" />
                                     </td>
-                                    <td class="short-answer px-4 py-2 border">
+                                    <td class="short-answer px-4 py-3 border border-gray-300 dark:border-gray-700">
                                         <x-textarea name="answer[0]"></x-textarea>
                                     </td>
-                                    <td class="mc-table px-4 py-2 hidden border">
-                                        <table class="table-auto w-full bg-white dark:bg-gray-800">
+                                    <td class="mc-table px-4 py-3 hidden border border-gray-300 dark:border-gray-700">
+                                        <table class="table-auto w-full bg-white dark:bg-gray-900">
                                             <tr>
                                                 <td class="px-4 py-1">
                                                     <x-input-label>A</x-input-label>
@@ -87,7 +87,7 @@
                                                     <x-textarea name="mc[0][0]"></x-textarea>
                                                 </td>
                                                 <td>
-                                                    <input type="radio" name="correct[0]" value="A" checked class="ml-2">
+                                                    <input type="radio" name="answer_[0]" value="A" checked class="ml-2">
                                                 </td>
                                             </tr>
                                             <tr>
@@ -98,7 +98,7 @@
                                                     <x-textarea name="mc[0][1]"></x-textarea>
                                                 </td>
                                                 <td>
-                                                    <input type="radio" name="correct[0]" value="B" class="ml-2">
+                                                    <input type="radio" name="answer_[0]" value="B" class="ml-2">
                                                 </td>
                                             </tr>
                                             <tr>
@@ -109,7 +109,7 @@
                                                     <x-textarea name="mc[0][2]"></x-textarea>
                                                 </td>
                                                 <td>
-                                                    <input type="radio" name="correct[0]" value="C" class="ml-2">
+                                                    <input type="radio" name="answer_[0]" value="C" class="ml-2">
                                                 </td>
                                             </tr>
                                             <tr>
@@ -120,12 +120,12 @@
                                                     <x-textarea name="mc[0][3]"></x-textarea>
                                                 </td>
                                                 <td>
-                                                    <input type="radio" name="correct[0]" value="B" class="ml-2">
+                                                    <input type="radio" name="answer_[0]" value="D" class="ml-2">
                                                 </td>
                                             </tr>
                                         </table>
                                     </td>
-                                    <td class="px-4 py-2 border">
+                                    <td class="px-4 py-3 border border-gray-300 dark:border-gray-700">
                                         <x-success-button class="add-row">
                                             <i class="material-icons">&#xe145;</i>
                                         </x-success-button>
@@ -491,18 +491,18 @@
             var rowIndex = 1;
 
             function addNewRow() {
-                var newRow = '<tr>' +
-                    '<td class="px-4 py-2 border">' +
+                var newRow = '<tr class="main-row">' +
+                    '<td class="px-4 py-2 border border-gray-300 dark:border-gray-700">' +
                     '<x-textarea name="question[' + rowIndex + ']"></x-textarea>' +
                     '</td>' +
-                    '<td class="px-4 py-2 border">' +
-                    `<x-select class="question-type" name="_type" :options="$question_types" />` +
+                    '<td class="px-4 py-2 border border-gray-300 dark:border-gray-700">' +
+                    `<x-select class="question-type" name="question_type[` + rowIndex + `]" :options="$question_types" />` +
                     '</td>' +
-                    '<td class="short-answer px-4 py-2 border">' +
+                    '<td class="short-answer px-4 py-2 border border-gray-300 dark:border-gray-700">' +
                     '<x-textarea name="answer[' + rowIndex + ']"></x-textarea>' +
                     '</td>' +
-                    '<td class="mc-table px-4 py-2 hidden border">' +
-                    '<table class="table-auto w-full bg-white dark:bg-gray-800">' +
+                    '<td class="mc-table px-4 py-2 hidden border border-gray-300 dark:border-gray-700">' +
+                    '<table class="table-auto w-full bg-white dark:bg-gray-900">' +
                     '<tr>' +
                     '<td class="px-4 py-1">' +
                     `<x-input-label>A</x-input-label>` +
@@ -511,7 +511,7 @@
                     '<x-textarea name="mc[' + rowIndex + '][0]"></x-textarea>' +
                     '</td>' +
                     '<td>' +
-                    '<input type="radio" name="correct[' + rowIndex + ']" value="A" checked class="ml-2">' +
+                    '<input type="radio" name="answer_[' + rowIndex + ']" value="A" checked class="ml-2">' +
                     '</td>' +
                     '</tr>' +
                     '<tr>' +
@@ -522,7 +522,7 @@
                     '<x-textarea name="mc[' + rowIndex + '][1]"></x-textarea>' +
                     '</td>' +
                     '<td>' +
-                    '<input type="radio" name="correct[' + rowIndex + ']" value="B" class="ml-2">' +
+                    '<input type="radio" name="answer_[' + rowIndex + ']" value="B" class="ml-2">' +
                     '</td>' +
                     '</tr>' +
                     '<tr>' +
@@ -533,7 +533,7 @@
                     '<x-textarea name="mc[' + rowIndex + '][2]"></x-textarea>' +
                     '</td>' +
                     '<td>' +
-                    '<input type="radio" name="correct[' + rowIndex + ']" value="C" class="ml-2">' +
+                    '<input type="radio" name="answer_[' + rowIndex + ']" value="C" class="ml-2">' +
                     '</td>' +
                     '</tr>' +
                     '<tr>' +
@@ -544,13 +544,13 @@
                     '<x-textarea name="mc[' + rowIndex + '][3]"></x-textarea>' +
                     '</td>' +
                     '<td>' +
-                    '<input type="radio" name="correct[' + rowIndex + ']" value="D" class="ml-2">' +
+                    '<input type="radio" name="answer_[' + rowIndex + ']" value="D" class="ml-2">' +
                     '</td>' +
                     '</tr>' +
                     '</table>' +
                     '</td>' +
-                    '<td class="px-4 py-2 border">' +
-                    '<table class="table-auto w-full bg-white dark:bg-gray-800">' +
+                    '<td class="px-4 py-2 border border-gray-300 dark:border-gray-700">' +
+                    '<table class="table-auto w-full bg-white dark:bg-gray-900">' +
                     '<tr>' +
                     '<td>' +
                     `<x-success-button class="add-row"><i class="material-icons">&#xe145;</i></x-success-button>` +
@@ -574,7 +574,7 @@
             });
 
             $(document).on('click', '.remove-row', function() {
-                $(this).closest('tr').remove();
+                $(this).closest('.main-row').remove();
             });
 
             // Listen for change in the "type" select input

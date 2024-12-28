@@ -11,5 +11,6 @@ class Content extends Model
         'description',
         'type',
         'pdf_url',
+        'exercise_details'
     ];
 }

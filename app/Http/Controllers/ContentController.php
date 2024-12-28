@@ -46,10 +46,11 @@ class ContentController extends Controller
             'title' => 'required|string|max:50',
             'description' => 'required|string|max:255',
             'type' => 'required|string|in:notes,exercise',
-            'pdf_content' => $request->input('type') == 'article' ? 'required|string' : '',
+            'pdf_content' => $request->input('type') == 'notes' ? 'required|string' : '',
         ]);
 
-        if ($request->input('pdf_content')) {
+        $pdfUrl = null;
+        if ($request->input('type') == 'notes') {
             $snake_title = preg_replace('/\s+/', '_', $request->input('title')); // Replace spaces with underscores
             $snake_title = preg_replace('/[^a-zA-Z0-9]/', '_', $snake_title); // Replace non-alphanumeric characters with underscores
             $snake_title = preg_replace('/(?<=\\w)(?=[A-Z])/', "_$1", $snake_title); // Insert underscores before uppercase letters
@@ -67,11 +68,49 @@ class ContentController extends Controller
             $pdfUrl = asset('pdf/' . $snake_title . '.pdf');
         }
 
+        $exerciseDetailsJson = null;
+        if ($request->input('type') == 'exercise') {
+            $exerciseDetails = [];
+            $questionList = $request->input('question');
+            // Re-index questions to avoid missing indices
+            $reindexedPayload = [];
+            foreach ($questionList as $index => $question) {
+                $type = $request->input('question_type')[$index];
+
+                $reindexedPayload[$index] = [
+                    'question' => $question,
+                    'type' => $type,
+                    'answer' => $request->input('answer')[$index],
+                ];
+
+                // If it's a multiple choice question, add the choices
+                if ($type == 'mc') {
+                    $mcInput = $request->input('mc')[$index];
+                    $reindexedPayload[$index]['mc'] = [
+                        $mcInput[0],
+                        $mcInput[1],
+                        $mcInput[2],
+                        $mcInput[3]
+                    ];
+                    $reindexedPayload[$index]['answer'] = $request->input('answer_')[$index];
+                }
+            }
+
+            // Loop through the re-indexed payload
+            foreach ($reindexedPayload as $data) {
+                $exerciseDetails[] = $data;
+            }
+
+            // Store the processed data as a JSON array
+            $exerciseDetailsJson = json_encode($exerciseDetails);
+        }
+
         Content::create([
             'title' => $request->input('title'),
             'description' => $request->input('description'),
             'type' => $request->input('type'),
-            'pdf_url' => $pdfUrl,
+            'pdf_url' => $pdfUrl ? $pdfUrl : '',
+            'exercise_details' => $exerciseDetailsJson ? $exerciseDetailsJson : '',
         ]);
 
         return redirect()->route('content.create');
@@ -113,15 +152,17 @@ class ContentController extends Controller
      */
     public function destroy(Content $content)
     {
-        $path = parse_url($content->pdf_url, PHP_URL_PATH);
-        $segments = explode('/', $path);
-        $fileToDelete = end($segments);
+        if ($content->pdf_url) {
+            $path = parse_url($content->pdf_url, PHP_URL_PATH);
+            $segments = explode('/', $path);
+            $fileToDelete = end($segments);
 
-        $filePath = public_path("pdf" . "\\" . $fileToDelete);
+            $filePath = public_path("pdf" . "\\" . $fileToDelete);
 
-        if (file_exists($filePath)) {
-            // Delete the file
-            unlink($filePath);
+            if (file_exists($filePath)) {
+                // Delete the file
+                unlink($filePath);
+            }
         }
 
         $content->delete();
