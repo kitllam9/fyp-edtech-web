@@ -3,6 +3,7 @@
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestController;
+use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/create', [ContentController::class, 'create'])->name('content.create');
         Route::post('/store', [ContentController::class, 'store'])->name('content.store');
         Route::delete('/delete/{content}', [ContentController::class, 'destroy'])->name('content.delete');
+    });
+
+    Route::prefix('content')->group(function () {
+        Route::get('/get-tags', [TagController::class, 'get'])->name('tags.get');
     });
 
     Route::prefix('quest')->group(function () {

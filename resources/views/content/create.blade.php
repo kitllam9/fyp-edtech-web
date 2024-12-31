@@ -36,9 +36,16 @@
                         </x-input-label>
                         <x-select id="type" name="type" class="mt-2" :options="$content_types" />
                     </div>
+                    <div class="mb-4">
+                        <x-input-label class="mb-2">
+                            {{ __('Tags') }}
+                        </x-input-label>
+                        <select class="w-full min-h-12" id="tags" name="tags[]" multiple="multiple"></select>
+                    </div>
                     <div class="mb-4 text-editor-section">
                         <x-text-editor id="content" />
                         <input type="hidden" name="pdf_content" id="pdf_content" value="">
+                        <div id="error-message" class="text-sm text-red-600 dark:text-red-400 mt-2"></div>
                     </div>
                     <div class="mb-4 table-section hidden">
                         <table id="data-table" class="table-auto border-collapse w-full bg-white dark:bg-gray-900">
@@ -215,6 +222,20 @@
             transform: scaleY(-1) rotate(-135deg)
         }
     }
+
+    /* .select2-container .select2-selection--multiple {
+        min-height: 3rem;
+    } */
+
+    /* Vertically center the text in the Select2 input */
+    /* .select2-container .select2-selection--multiple .select2-selection__rendered {
+        line-height: 1.5rem;
+    } */
+
+    /* Prevent text from getting cut off at the bottom */
+    /* .select2-container .select2-selection--multiple .select2-selection__rendered {
+        padding: 5px;
+    } */
 </style>
 
 <script type="module">
@@ -447,6 +468,7 @@
                 });
             });
 
+
             $('#create_materials').submit(function(e) {
                 e.preventDefault();
 
@@ -471,13 +493,11 @@
                     error: function(xhr) {
                         $('#loader-overlay').hide();
 
-                        var errors = xhr.responseJSON.errors;
-
-                        // Loop through the errors object and display each error
-                        $.each(errors, function(key, value) {
-                            // Display the error messages as you like
-                            console.log(key + ': ' + value);
-                        });
+                        var errors = xhr.responseJSON;
+                        if (errors && errors.error) {
+                            // Display the error message on the page
+                            $('#error-message').text(errors.error);
+                        }
                     }
                 });
             });
@@ -606,6 +626,28 @@
                     mcTable.show();
                 }
             });
+            $('#tags').select2({
+                tags: true,
+                tokenSeparators: [','],
+                width: 'resolve',
+                ajax: {
+                    url: "{{ route('tags.get') }}", // Your route to fetch existing tags
+                    dataType: 'json',
+                    delay: 250,
+                    processResults: function(data) {
+                        return {
+                            results: $.map(data, function(tag) {
+                                return {
+                                    id: tag.id,
+                                    text: tag.name
+                                };
+                            })
+                        };
+                    },
+                    cache: true
+                },
+            });
+
         }
     })
 </script>

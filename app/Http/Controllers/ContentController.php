@@ -8,7 +8,8 @@ use App\Http\Requests\UpdateContentRequest;
 use Illuminate\Http\Request;
 use Spatie\LaravelPdf\Facades\Pdf;
 use Spatie\LaravelPdf\Enums\Unit;
-use Illuminate\Support\Facades\Storage;
+use App\DataProcessing;
+use Illuminate\Support\Str;
 
 class ContentController extends Controller
 {
@@ -46,17 +47,48 @@ class ContentController extends Controller
             'title' => 'required|string|max:50',
             'description' => 'required|string|max:255',
             'type' => 'required|string|in:notes,exercise',
-            'pdf_content' => $request->input('type') == 'notes' ? 'required|string' : '',
         ]);
 
         $pdfUrl = null;
+        $tags = [];
         if ($request->input('type') == 'notes') {
+
+            if ($request->input('pdf_content') == '<p></p>') {
+                return response()->json(['error' => 'Notes cannot be empty.'], 422);
+            }
+
             $snake_title = preg_replace('/\s+/', '_', $request->input('title')); // Replace spaces with underscores
             $snake_title = preg_replace('/[^a-zA-Z0-9]/', '_', $snake_title); // Replace non-alphanumeric characters with underscores
             $snake_title = preg_replace('/(?<=\\w)(?=[A-Z])/', "_$1", $snake_title); // Insert underscores before uppercase letters
             strtolower($snake_title);
 
             $pdfFilePath = public_path('pdf/' . $snake_title . '.pdf');
+
+            $string = preg_replace('/[^A-Za-z ]/', '', strip_tags($request->input('pdf_content')));
+            $string = Str::replace('gtgtgt', '', $string);
+
+            // Array to store words from each iteration
+            $wordsCount = [];
+
+            // Run topic modeling for multiple iterations
+            $it = 10; // Number of iterations
+            for ($i = 0; $i < $it; $i++) {
+                $result = DataProcessing::topicModeling($string); // Execute topic modeling for each iteration
+
+                // Count the occurrence of words in each iteration
+                foreach ($result as $word) {
+                    if (!isset($wordsCount[$word])) {
+                        $wordsCount[$word] = 1;
+                    } else {
+                        $wordsCount[$word]++;
+                    }
+                }
+            }
+
+            // Filter words that appeared more than once
+            $tags = array_keys(array_filter($wordsCount, function ($count) use ($it) {
+                return $count > ($it / 3);
+            }));
 
             // Generate PDF from the temporary Blade view
             Pdf::View('content.temp', ['content' => $request->input('pdf_content')])
@@ -111,6 +143,7 @@ class ContentController extends Controller
             'type' => $request->input('type'),
             'pdf_url' => $pdfUrl ? $pdfUrl : '',
             'exercise_details' => $exerciseDetailsJson ? $exerciseDetailsJson : '',
+            'tags' => json_encode($tags),
         ]);
 
         return redirect()->route('content.create');
