@@ -34,7 +34,7 @@ class DataProcessing
             1  // the dirichlet prior assumed for the per word topic distribution
         );
 
-        // run the sampler 50 times
+        // run the sampler 100 times
         $lda->train($train, 100);
 
         $result = $lda->getPhi(10);
@@ -48,6 +48,10 @@ class DataProcessing
         arsort($joinedArr);
 
         $topWords = array_keys(array_slice($joinedArr, 0, 5, true)); // Extract only the top 5 words
+
+        $topWords = array_filter($topWords, function ($value) {
+            return strlen($value) > 1;
+        });
 
         return $topWords;
     }

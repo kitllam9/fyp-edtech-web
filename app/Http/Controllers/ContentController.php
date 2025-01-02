@@ -49,8 +49,9 @@ class ContentController extends Controller
             'type' => 'required|string|in:notes,exercise',
         ]);
 
-        $pdfUrl = null;
         $tags = [];
+
+        $pdfUrl = null;
         if ($request->input('type') == 'notes') {
 
             if ($request->input('pdf_content') == '<p></p>') {
@@ -67,28 +68,7 @@ class ContentController extends Controller
             $string = preg_replace('/[^A-Za-z ]/', '', strip_tags($request->input('pdf_content')));
             $string = Str::replace('gtgtgt', '', $string);
 
-            // Array to store words from each iteration
-            $wordsCount = [];
-
-            // Run topic modeling for multiple iterations
-            $it = 10; // Number of iterations
-            for ($i = 0; $i < $it; $i++) {
-                $result = DataProcessing::topicModeling($string); // Execute topic modeling for each iteration
-
-                // Count the occurrence of words in each iteration
-                foreach ($result as $word) {
-                    if (!isset($wordsCount[$word])) {
-                        $wordsCount[$word] = 1;
-                    } else {
-                        $wordsCount[$word]++;
-                    }
-                }
-            }
-
-            // Filter words that appeared more than once
-            $tags = array_keys(array_filter($wordsCount, function ($count) use ($it) {
-                return $count > ($it / 3);
-            }));
+            $tags = $this->iteratedLda($string, 10);
 
             // Generate PDF from the temporary Blade view
             Pdf::View('content.temp', ['content' => $request->input('pdf_content')])
@@ -104,6 +84,9 @@ class ContentController extends Controller
         if ($request->input('type') == 'exercise') {
             $exerciseDetails = [];
             $questionList = $request->input('question');
+            $mcList = $request->input('mc');
+            $answerList = $request->input('answer');
+
             // Re-index questions to avoid missing indices
             $reindexedPayload = [];
             foreach ($questionList as $index => $question) {
@@ -112,12 +95,12 @@ class ContentController extends Controller
                 $reindexedPayload[$index] = [
                     'question' => $question,
                     'type' => $type,
-                    'answer' => $request->input('answer')[$index],
+                    'answer' => $answerList[$index],
                 ];
 
                 // If it's a multiple choice question, add the choices
                 if ($type == 'mc') {
-                    $mcInput = $request->input('mc')[$index];
+                    $mcInput = $mcList[$index];
                     $reindexedPayload[$index]['mc'] = [
                         $mcInput[0],
                         $mcInput[1],
@@ -143,18 +126,13 @@ class ContentController extends Controller
             'type' => $request->input('type'),
             'pdf_url' => $pdfUrl ? $pdfUrl : '',
             'exercise_details' => $exerciseDetailsJson ? $exerciseDetailsJson : '',
-            'tags' => json_encode($tags),
+            'tags' => json_encode(array_unique(array_merge($tags, $request->input('tags')))),
         ]);
 
         return redirect()->route('content.create');
     }
 
-    public function temp(Request $request)
-    {
-        return view('content.temp', [
-            'content' => $request->input('content'),
-        ]);
-    }
+
 
     /**
      * Display the specified resource.
@@ -200,5 +178,37 @@ class ContentController extends Controller
 
         $content->delete();
         return redirect()->route('content');
+    }
+
+    public function temp(Request $request)
+    {
+        return view('content.temp', [
+            'content' => $request->input('content'),
+        ]);
+    }
+
+    private function iteratedLda(string $str, int $it)
+    {
+        // Array to store words from each iteration
+        $wordsCount = [];
+
+        // Run topic modeling for multiple iterations
+        for ($i = 0; $i < $it; $i++) {
+            $result = DataProcessing::topicModeling($str); // Execute topic modeling for each iteration
+
+            // Count the occurrence of words in each iteration
+            foreach ($result as $word) {
+                if (!isset($wordsCount[$word])) {
+                    $wordsCount[$word] = 1;
+                } else {
+                    $wordsCount[$word]++;
+                }
+            }
+        }
+
+        // Filter words that appeared more than once
+        return array_keys(array_filter($wordsCount, function ($count) use ($it) {
+            return $count > ($it / 3);
+        }));
     }
 }

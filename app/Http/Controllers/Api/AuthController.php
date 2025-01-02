@@ -20,7 +20,7 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors());
+            return $this->failed(errors: $validator->errors());
         }
 
         $user = User::create([
@@ -30,43 +30,50 @@ class AuthController extends Controller
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json([
-            'data' => $user,
-            'access_token' => $token,
-            'token_type' => 'Bearer'
-        ]);
+        return $this->success(
+            data: [
+                'user' => $user,
+                'access_token' => $token,
+                'token_type' => 'Bearer'
+            ],
+            message: 'Register successful'
+        );
     }
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email'     => 'required|string|max:255',
+            'username'     => 'required|string|max:255',
             'password'  => 'required|string'
         ]);
         if ($validator->fails()) {
-            return response()->json($validator->errors());
+            return $this->failed(errors: $validator->errors());
         }
 
-        $credentials = $request->only('email', 'password');
-        $user = User::where('email', $credentials['email'])->first();
+        $credentials = $request->only('username', 'password');
+        $user = User::where('username', $credentials['username'])->first();
         if (!($user && Hash::check($credentials['password'], $user->password))) {
-            return response()->json([
-                'message' => 'User not found'
-            ], 401);
+            return $this->failed(
+                errors: ['username' => ['Invalid credentials.']],
+                statusCode: 401,
+            );
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
-            'message'       => 'Login success',
-            'access_token'  => $token,
-            'token_type'    => 'Bearer'
-        ]);
+        return $this->success(
+            data: [
+                'user' => $user,
+                'access_token'  => $token,
+                'token_type'    => 'Bearer'
+            ],
+            message: 'Login successful',
+        );
     }
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
-        return response()->json([
-            'message' => 'Logout successful'
-        ]);
+        return $this->success(
+            message: 'Logout successful',
+        );
     }
 }

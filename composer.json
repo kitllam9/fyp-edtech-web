@@ -6,12 +6,14 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "hammerstone/sidecar": "^0.6.1",
         "juanantoniodelgado/stopwords": "^1.4",
         "laravel/framework": "^11.9",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "nlp-tools/nlp-tools": "1.0.*@dev",
-        "spatie/laravel-pdf": "^1.5"
+        "spatie/laravel-pdf": "^1.5",
+        "wnx/sidecar-browsershot": "^2.5"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.14",

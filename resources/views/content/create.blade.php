@@ -222,20 +222,6 @@
             transform: scaleY(-1) rotate(-135deg)
         }
     }
-
-    /* .select2-container .select2-selection--multiple {
-        min-height: 3rem;
-    } */
-
-    /* Vertically center the text in the Select2 input */
-    /* .select2-container .select2-selection--multiple .select2-selection__rendered {
-        line-height: 1.5rem;
-    } */
-
-    /* Prevent text from getting cut off at the bottom */
-    /* .select2-container .select2-selection--multiple .select2-selection__rendered {
-        padding: 5px;
-    } */
 </style>
 
 <script type="module">
