@@ -13,7 +13,7 @@ class ContentController extends Controller
      */
     public function search()
     {
-        return response()->json(Content::paginate(10));
+        return $this->success(data: Content::paginate(10));
     }
 
     /**

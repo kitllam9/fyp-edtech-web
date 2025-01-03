@@ -60,7 +60,6 @@ class ContentController extends Controller
 
             $snake_title = preg_replace('/\s+/', '_', $request->input('title')); // Replace spaces with underscores
             $snake_title = preg_replace('/[^a-zA-Z0-9]/', '_', $snake_title); // Replace non-alphanumeric characters with underscores
-            $snake_title = preg_replace('/(?<=\\w)(?=[A-Z])/', "_$1", $snake_title); // Insert underscores before uppercase letters
             strtolower($snake_title);
 
             $pdfFilePath = public_path('pdf/' . $snake_title . '.pdf');
@@ -124,8 +123,8 @@ class ContentController extends Controller
             'title' => $request->input('title'),
             'description' => $request->input('description'),
             'type' => $request->input('type'),
-            'pdf_url' => $pdfUrl ? $pdfUrl : '',
-            'exercise_details' => $exerciseDetailsJson ? $exerciseDetailsJson : '',
+            'pdf_url' => $pdfUrl,
+            'exercise_details' => $exerciseDetailsJson,
             'tags' => json_encode(array_unique(array_merge($tags, $request->input('tags')))),
         ]);
 

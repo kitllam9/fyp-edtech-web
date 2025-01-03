@@ -4,10 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContentController;
+use App\Http\Controllers\Api\UserController;
 
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');
 
 Route::get('/test', function () {
     return response()->json(['message' => 'Hello world']);
@@ -19,11 +17,12 @@ Route::prefix('user')->group(function () {
 });
 
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
 Route::prefix('user')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [UserController::class, 'getUser']);
     Route::get('/logout', [AuthController::class, 'logout']);
 });
 

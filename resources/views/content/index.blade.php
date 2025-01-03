@@ -40,10 +40,7 @@
                                 URL
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Created At
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Updated At
+                                Tags
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Actions
@@ -53,12 +50,11 @@
                     <tbody class="divide-y divide-gray-200">
                         @foreach($content as $c)
                         <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $c->title }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $c->type }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $c->pdf_url ? $c->pdf_url : '' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $c->created_at }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $c->updated_at }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-6 py-4 max-w-24 whitespace-nowrap">{{ $c->title }}</td>
+                            <td class="px-6 py-4 max-w-24 whitespace-nowrap">{{ $c->type }}</td>
+                            <td class="px-6 py-4 max-w-24 whitespace-nowrap">{{ $c->pdf_url ? $c->pdf_url : '' }}</td>
+                            <td class="px-6 py-4 max-w-24 whitespace-nowrap">{{ $c->tags }}</td>
+                            <td class="px-6 py-4 max-w-24 whitespace-nowrap">
                                 <form method="POST" action="{{ route('content.delete', $c) }}">
                                     @csrf
                                     @method('DELETE')
@@ -75,7 +71,16 @@
         </div>
     </div>
 </x-app-layout>
-
+<style>
+    .datatable-wrapper .datatable-table thead th,
+    .datatable-wrapper .datatable-table tbody th,
+    .datatable-wrapper .datatable-table tbody td {
+        max-width: 8rem !important;
+        overflow: hidden;
+        white-space: normal;
+        word-wrap: break-word;
+    }
+</style>
 <script>
     if (document.getElementById("content-table") && typeof simpleDatatables.DataTable !== 'undefined') {
         const dataTable = new simpleDatatables.DataTable("#content-table", {
