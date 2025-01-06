@@ -28,4 +28,5 @@ Route::prefix('user')->middleware('auth:sanctum')->group(function () {
 
 Route::prefix('content')->group(function () {
     Route::get('/', [ContentController::class, 'search']);
+    Route::get('/get-pdf/{id}', [ContentController::class, 'getPdf']);
 });

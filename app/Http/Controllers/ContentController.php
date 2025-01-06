@@ -62,7 +62,8 @@ class ContentController extends Controller
             $snake_title = preg_replace('/[^a-zA-Z0-9]/', '_', $snake_title); // Replace non-alphanumeric characters with underscores
             strtolower($snake_title);
 
-            $pdfFilePath = public_path('pdf/' . $snake_title . '.pdf');
+            // $pdfFilePath = public_path('pdf/' . $snake_title . '.pdf');
+            $pdfFilePath = storage_path('app/public/pdf/' . $snake_title . '.pdf');;
 
             $string = preg_replace('/[^A-Za-z ]/', '', strip_tags($request->input('pdf_content')));
             $string = Str::replace('gtgtgt', '', $string);
@@ -76,7 +77,7 @@ class ContentController extends Controller
 
 
             // Get the URL of the saved PDF file
-            $pdfUrl = asset('pdf/' . $snake_title . '.pdf');
+            $pdfUrl = url('storage/pdf/' . basename($pdfFilePath));
         }
 
         $exerciseDetailsJson = null;
@@ -164,10 +165,9 @@ class ContentController extends Controller
     {
         if ($content->pdf_url) {
             $path = parse_url($content->pdf_url, PHP_URL_PATH);
-            $segments = explode('/', $path);
-            $fileToDelete = end($segments);
+            $fileToDelete = basename($path);
 
-            $filePath = public_path("pdf" . "\\" . $fileToDelete);
+            $filePath = storage_path('app/public/pdf/' . $fileToDelete);
 
             if (file_exists($filePath)) {
                 // Delete the file

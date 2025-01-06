@@ -6,6 +6,8 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "bref/bref": "^2.3",
+        "bref/laravel-bridge": "^2.4",
         "hammerstone/sidecar": "^0.6.1",
         "juanantoniodelgado/stopwords": "^1.4",
         "laravel/framework": "^11.9",
