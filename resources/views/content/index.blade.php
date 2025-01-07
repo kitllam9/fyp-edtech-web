@@ -55,12 +55,17 @@
                             <td class="px-6 py-4 max-w-24 whitespace-nowrap">{{ $c->pdf_url ? $c->pdf_url : '' }}</td>
                             <td class="px-6 py-4 max-w-24 whitespace-nowrap">{{ $c->tags }}</td>
                             <td class="px-6 py-4 max-w-24 whitespace-nowrap">
-                                <form method="POST" action="{{ route('content.delete', $c) }}">
+                                <form method="POST" class="inline" action="{{ route('content.delete', $c) }}">
                                     @csrf
                                     @method('DELETE')
                                     <x-danger-button>
                                         <i class="material-icons">&#xe872;</i>
                                     </x-danger-button>
+                                </form>
+                                <form method="GET" class="inline" action="{{ route('content.edit', $c) }}">
+                                    <x-success-button class="ml-1">
+                                        <i class="material-icons">&#xe3c9;</i>
+                                    </x-success-button>
                                 </form>
                             </td>
                         </tr>

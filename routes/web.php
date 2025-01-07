@@ -19,12 +19,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/temp', [ContentController::class, 'temp'])->name('content.temp');
         Route::get('/create', [ContentController::class, 'create'])->name('content.create');
         Route::post('/store', [ContentController::class, 'store'])->name('content.store');
+        Route::get('/edit/{content}', [ContentController::class, 'edit'])->name('content.edit');
         Route::delete('/delete/{content}', [ContentController::class, 'destroy'])->name('content.delete');
     });
 
-    Route::prefix('content')->group(function () {
-        Route::get('/get-tags', [TagController::class, 'get'])->name('tags.get');
-    });
+    Route::prefix('content')->group(function () {});
 
     Route::prefix('quest')->group(function () {
         Route::get('/', [QuestController::class, 'index'])->name('quest');

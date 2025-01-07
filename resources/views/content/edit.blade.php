@@ -22,19 +22,19 @@
                         <x-input-label>
                             {{ __('Title') }}
                         </x-input-label>
-                        <x-text-input id="title" class="block mt-2 w-full" type="text" name="title" required />
+                        <x-text-input id="title" class="block mt-2 w-full" type="text" name="title" value="{{ $content->title }}" required />
                     </div>
                     <div class="mb-4">
                         <x-input-label>
                             {{ __('Description') }}
                         </x-input-label>
-                        <x-text-input id="description" class="block mt-2 w-full" type="text" name="description" required />
+                        <x-text-input id="description" class="block mt-2 w-full" type="text" name="description" value="{{ $content->description }}" required />
                     </div>
                     <div class="mb-4">
                         <x-input-label>
                             {{ __('Type') }}
                         </x-input-label>
-                        <x-select id="type" name="type" class="mt-2" :options="$content_types" />
+                        <x-select id="type" name="type" class="mt-2" :options="$content_types" :defaultValue="$default_content_type" />
                     </div>
                     <div class="mb-4">
                         <x-input-label class="mb-2">
@@ -44,8 +44,8 @@
                             id="tags"
                             type="text"
                             class="w-full px-1 py-2 text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
-                            name="tags" />
-                        <!-- <select class="w-full min-h-12" id="tags" name="tags[]" multiple="multiple"></select> -->
+                            name="tags"
+                            value="{{ $default_tags }}" />
                     </div>
                     <div class="mb-4 text-editor-section">
                         <x-text-editor id="content" />
@@ -79,15 +79,26 @@
                                 </tr>
                             </thead>
                             <tbody class="main-table">
+                                @if ($content->exercise_details)
+                                @foreach (json_decode($content->exercise_details) as $q)
                                 <tr class="main-row">
                                     <td class="px-4 py-3 border border-gray-300 dark:border-gray-700">
-                                        <x-textarea name="question[0]"></x-textarea>
+                                        @php
+                                        $question_text = $q->question;
+                                        @endphp
+                                        <x-textarea name="question[0]" :defaultValue="$question_text"></x-textarea>
                                     </td>
                                     <td class="px-4 py-3 border border-gray-300 dark:border-gray-700">
-                                        <x-select class="question-type" name="question_type[0]" :options="$question_types" />
+                                        @php
+                                        $default_type = $q->type;
+                                        @endphp
+                                        <x-select class="question-type" name="question_type[0]" :options="$question_types" :defaultValue="$default_type" />
                                     </td>
                                     <td class="short-answer px-4 py-3 border border-gray-300 dark:border-gray-700">
-                                        <x-textarea name="answer[0]"></x-textarea>
+                                        @php
+                                        $answer_text = $q->answer;
+                                        @endphp
+                                        <x-textarea name="answer[0]" :defaultValue="$answer_text"></x-textarea>
                                     </td>
                                     <td class="mc-table px-4 py-3 hidden border border-gray-300 dark:border-gray-700">
                                         <table class="table-auto w-full bg-white dark:bg-gray-900">
@@ -99,7 +110,7 @@
                                                     <x-textarea name="mc[0][0]"></x-textarea>
                                                 </td>
                                                 <td>
-                                                    <input type="radio" name="answer_[0]" value="A" checked class="ml-2">
+                                                    <input type="radio" name="answer_[0]" value="A" {{ $q->answer == 'A' ? "checked" : ''}} class="ml-2">
                                                 </td>
                                             </tr>
                                             <tr>
@@ -110,7 +121,7 @@
                                                     <x-textarea name="mc[0][1]"></x-textarea>
                                                 </td>
                                                 <td>
-                                                    <input type="radio" name="answer_[0]" value="B" class="ml-2">
+                                                    <input type="radio" name="answer_[0]" value="B" {{ $q->answer == 'B' ? "checked" : ''}} class="ml-2">
                                                 </td>
                                             </tr>
                                             <tr>
@@ -121,7 +132,7 @@
                                                     <x-textarea name="mc[0][2]"></x-textarea>
                                                 </td>
                                                 <td>
-                                                    <input type="radio" name="answer_[0]" value="C" class="ml-2">
+                                                    <input type="radio" name="answer_[0]" value="C" {{ $q->answer == 'C' ? "checked" : ''}} class="ml-2">
                                                 </td>
                                             </tr>
                                             <tr>
@@ -132,7 +143,7 @@
                                                     <x-textarea name="mc[0][3]"></x-textarea>
                                                 </td>
                                                 <td>
-                                                    <input type="radio" name="answer_[0]" value="D" class="ml-2">
+                                                    <input type="radio" name="answer_[0]" value="D" {{ $q->answer == 'D' ? "checked" : ''}} class="ml-2">
                                                 </td>
                                             </tr>
                                         </table>
@@ -143,6 +154,8 @@
                                         </x-success-button>
                                     </td>
                                 </tr>
+                                @endforeach
+                                @endif
                             </tbody>
                         </table>
                     </div>
@@ -589,8 +602,7 @@
                 $(this).closest('.main-row').remove();
             });
 
-            // Listen for change in the "type" select input
-            $('#type').on('change', function() {
+            function checkContentType() {
                 var selectedType = $('#type').val();
                 if (selectedType === 'notes') {
                     $('.text-editor-section').show();
@@ -599,8 +611,16 @@
                     $('.text-editor-section').hide();
                     $('.table-section').show();
                 }
+            }
+
+            checkContentType();
+
+            // Listen for change in the "type" select input
+            $('#type').on('change', function() {
+                checkContentType();
             });
-            $(document).on('change', '.question-type', function() {
+
+            function checkQuestionType() {
                 var selectedType = $(this).val();
 
                 // Find the closest parent <tr> element
@@ -617,6 +637,14 @@
                     shortAnswer.hide();
                     mcTable.show();
                 }
+            }
+
+            $('.question-type').each(function() {
+                checkQuestionType.call(this);
+            });
+
+            $(document).on('change', '.question-type', function() {
+                checkQuestionType();
             });
 
             var input = document.querySelector('#tags');

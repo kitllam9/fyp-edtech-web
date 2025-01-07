@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Content;
+use App\Models\Tag;
 use App\Http\Requests\StoreContentRequest;
 use App\Http\Requests\UpdateContentRequest;
 use Illuminate\Http\Request;
 use Spatie\LaravelPdf\Facades\Pdf;
 use Spatie\LaravelPdf\Enums\Unit;
 use App\DataProcessing;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ContentController extends Controller
@@ -26,6 +28,7 @@ class ContentController extends Controller
      */
     public function create()
     {
+
         return view('content.create', [
             'content_types' => [
                 'notes' => 'Notes',
@@ -34,7 +37,8 @@ class ContentController extends Controller
             "question_types" => [
                 'short' => 'Short Question',
                 'mc' => 'Multiple Choice'
-            ]
+            ],
+            'tags' => json_encode(Tag::pluck('name')),
         ]);
     }
 
@@ -120,13 +124,17 @@ class ContentController extends Controller
             $exerciseDetailsJson = json_encode($exerciseDetails);
         }
 
+        $inputTags = array_map(function ($item) {
+            return $item['value'];
+        }, json_decode($request->input('tags'), true));
+
         Content::create([
             'title' => $request->input('title'),
             'description' => $request->input('description'),
             'type' => $request->input('type'),
             'pdf_url' => $pdfUrl,
             'exercise_details' => $exerciseDetailsJson,
-            'tags' => json_encode(array_unique(array_merge($tags, $request->input('tags')))),
+            'tags' => json_encode(array_unique(array_merge($tags, $inputTags))),
         ]);
 
         return redirect()->route('content.create');
@@ -147,7 +155,24 @@ class ContentController extends Controller
      */
     public function edit(Content $content)
     {
-        //
+        $defaultTags = json_encode(array_map(function ($item) {
+            return ['value' => $item];
+        }, json_decode($content->tags)));
+
+        return view('content.edit', [
+            'content' => $content,
+            'default_content_type' => $content->pdf_url ? 'notes' : 'exercise',
+            'content_types' => [
+                'notes' => 'Notes',
+                'exercise' => 'Exercise'
+            ],
+            "question_types" => [
+                'short' => 'Short Question',
+                'mc' => 'Multiple Choice'
+            ],
+            'tags' => json_encode(Tag::pluck('name')),
+            'default_tags' => $defaultTags,
+        ]);
     }
 
     /**
@@ -167,7 +192,7 @@ class ContentController extends Controller
             $path = parse_url($content->pdf_url, PHP_URL_PATH);
             $fileToDelete = basename($path);
 
-            $filePath = storage_path('app/public/pdf/' . $fileToDelete);
+            $filePath = storage_path('app\public\pdf\\' . $fileToDelete);
 
             if (file_exists($filePath)) {
                 // Delete the file

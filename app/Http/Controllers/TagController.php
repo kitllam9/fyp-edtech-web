@@ -16,10 +16,7 @@ class TagController extends Controller
         //
     }
 
-    public function get()
-    {
-        return Tag::all();
-    }
+    public function get() {}
 
     /**
      * Show the form for creating a new resource.
