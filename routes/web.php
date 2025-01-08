@@ -14,13 +14,14 @@ Route::middleware(['auth'])->group(function () {
     })->name('dashboard');
     Route::get('/users', [UserController::class, 'index'])->name('users');
 
-    Route::prefix('content')->group(function () {
+    Route::middleware('auth')->prefix('content')->group(function () {
         Route::get('/', [ContentController::class, 'index'])->name('content');
-        Route::post('/temp', [ContentController::class, 'temp'])->name('content.temp');
         Route::get('/create', [ContentController::class, 'create'])->name('content.create');
         Route::post('/store', [ContentController::class, 'store'])->name('content.store');
         Route::get('/edit/{content}', [ContentController::class, 'edit'])->name('content.edit');
+        Route::post('/update/{content}', [ContentController::class, 'update'])->name('content.update');
         Route::delete('/delete/{content}', [ContentController::class, 'destroy'])->name('content.delete');
+        Route::post('/temp', [ContentController::class, 'temp'])->name('content.temp');
     });
 
     Route::prefix('content')->group(function () {});

@@ -1,4 +1,19 @@
 <x-app-layout>
+    @php
+    $content_types = [
+    'notes' => 'Notes',
+    'exercise' => 'Exercise'
+    ];
+    $question_types = [
+    'short' => 'Short Question',
+    'mc' => 'Multiple Choice'
+    ];
+    $rowLength = json_decode($content->exercise_details) ? count(json_decode($content->exercise_details)) : 1;
+    $option_1 = '';
+    $option_2 = '';
+    $option_3 = '';
+    $option_4 = '';
+    @endphp
     <div id="loader-overlay">
         <div id="loader"></div>
     </div>
@@ -17,7 +32,7 @@
                 </div>
             </div>
             <div class="mt-4">
-                <form id="create_materials">
+                <form id="update_materials">
                     <div class="mb-4">
                         <x-input-label>
                             {{ __('Title') }}
@@ -31,10 +46,10 @@
                         <x-text-input id="description" class="block mt-2 w-full" type="text" name="description" value="{{ $content->description }}" required />
                     </div>
                     <div class="mb-4">
-                        <x-input-label>
+                        <!-- <x-input-label>
                             {{ __('Type') }}
-                        </x-input-label>
-                        <x-select id="type" name="type" class="mt-2" :options="$content_types" :defaultValue="$default_content_type" />
+                        </x-input-label> -->
+                        <x-select id="type" name="type" class="mt-2 hidden" :options="$content_types" :defaultValue="$default_content_type" />
                     </div>
                     <div class="mb-4">
                         <x-input-label class="mb-2">
@@ -80,25 +95,25 @@
                             </thead>
                             <tbody class="main-table">
                                 @if ($content->exercise_details)
-                                @foreach (json_decode($content->exercise_details) as $q)
+                                @foreach (json_decode($content->exercise_details) as $i => $q)
                                 <tr class="main-row">
                                     <td class="px-4 py-3 border border-gray-300 dark:border-gray-700">
                                         @php
                                         $question_text = $q->question;
                                         @endphp
-                                        <x-textarea name="question[0]" :defaultValue="$question_text"></x-textarea>
+                                        <x-textarea name="question[{{ $i }}]" :defaultValue="$question_text"></x-textarea>
                                     </td>
                                     <td class="px-4 py-3 border border-gray-300 dark:border-gray-700">
                                         @php
                                         $default_type = $q->type;
                                         @endphp
-                                        <x-select class="question-type" name="question_type[0]" :options="$question_types" :defaultValue="$default_type" />
+                                        <x-select class="question-type" name="question_type[{{ $i }}]" :options="$question_types" :defaultValue="$default_type" />
                                     </td>
                                     <td class="short-answer px-4 py-3 border border-gray-300 dark:border-gray-700">
                                         @php
                                         $answer_text = $q->answer;
                                         @endphp
-                                        <x-textarea name="answer[0]" :defaultValue="$answer_text"></x-textarea>
+                                        <x-textarea name="answer[{{ $i }}]" :defaultValue="$answer_text"></x-textarea>
                                     </td>
                                     <td class="mc-table px-4 py-3 hidden border border-gray-300 dark:border-gray-700">
                                         <table class="table-auto w-full bg-white dark:bg-gray-900">
@@ -107,10 +122,15 @@
                                                     <x-input-label>A</x-input-label>
                                                 </td>
                                                 <td class="px-4 py-1">
-                                                    <x-textarea name="mc[0][0]"></x-textarea>
+                                                    @php
+                                                    if ($q->type == 'mc') {
+                                                    $option_1 = html_entity_decode($q->mc[0]);
+                                                    }
+                                                    @endphp
+                                                    <x-textarea name="mc[{{ $i }}][0]" :defaultValue="$option_1"></x-textarea>
                                                 </td>
                                                 <td>
-                                                    <input type="radio" name="answer_[0]" value="A" {{ $q->answer == 'A' ? "checked" : ''}} class="ml-2">
+                                                    <input type="radio" name="answer_[{{ $i }}]" value="A" {{ $q->answer == 'A' ? "checked" : ''}} class="ml-2">
                                                 </td>
                                             </tr>
                                             <tr>
@@ -118,10 +138,15 @@
                                                     <x-input-label>B</x-input-label>
                                                 </td>
                                                 <td class="px-4 py-1">
-                                                    <x-textarea name="mc[0][1]"></x-textarea>
+                                                    @php
+                                                    if ($q->type == 'mc') {
+                                                    $option_2 = html_entity_decode($q->mc[1]);
+                                                    }
+                                                    @endphp
+                                                    <x-textarea name="mc[{{ $i }}][1]" :defaultValue="$option_2"></x-textarea>
                                                 </td>
                                                 <td>
-                                                    <input type="radio" name="answer_[0]" value="B" {{ $q->answer == 'B' ? "checked" : ''}} class="ml-2">
+                                                    <input type="radio" name="answer_[{{ $i }}]" value="B" {{ $q->answer == 'B' ? "checked" : ''}} class="ml-2">
                                                 </td>
                                             </tr>
                                             <tr>
@@ -129,10 +154,15 @@
                                                     <x-input-label>C</x-input-label>
                                                 </td>
                                                 <td class="px-4 py-1">
-                                                    <x-textarea name="mc[0][2]"></x-textarea>
+                                                    @php
+                                                    if ($q->type == 'mc') {
+                                                    $option_3 = html_entity_decode($q->mc[2]);
+                                                    }
+                                                    @endphp
+                                                    <x-textarea name="mc[{{ $i }}][2]" :defaultValue="$option_3"></x-textarea>
                                                 </td>
                                                 <td>
-                                                    <input type="radio" name="answer_[0]" value="C" {{ $q->answer == 'C' ? "checked" : ''}} class="ml-2">
+                                                    <input type="radio" name="answer_[{{ $i }}]" value="C" {{ $q->answer == 'C' ? "checked" : ''}} class="ml-2">
                                                 </td>
                                             </tr>
                                             <tr>
@@ -140,18 +170,36 @@
                                                     <x-input-label>D</x-input-label>
                                                 </td>
                                                 <td class="px-4 py-1">
-                                                    <x-textarea name="mc[0][3]"></x-textarea>
+                                                    @php
+                                                    if ($q->type == 'mc') {
+                                                    $option_4 = html_entity_decode($q->mc[3]);
+                                                    }
+                                                    @endphp
+                                                    <x-textarea name="mc[{{ $i }}][3]" :defaultValue="$option_4"></x-textarea>
                                                 </td>
                                                 <td>
-                                                    <input type="radio" name="answer_[0]" value="D" {{ $q->answer == 'D' ? "checked" : ''}} class="ml-2">
+                                                    <input type="radio" name="answer_[{{ $i }}]" value="D" {{ $q->answer == 'D' ? "checked" : ''}} class="ml-2">
                                                 </td>
                                             </tr>
                                         </table>
                                     </td>
-                                    <td class="px-4 py-3 border border-gray-300 dark:border-gray-700">
-                                        <x-success-button class="add-row">
-                                            <i class="material-icons">&#xe145;</i>
-                                        </x-success-button>
+                                    <td class="px-4 py-2 border border-gray-300 dark:border-gray-700">
+                                        <table class="table-auto w-full bg-white dark:bg-gray-900">
+                                            <tr>
+                                                <td>
+                                                    <x-success-button class="add-row">
+                                                        <i class="material-icons">&#xe145;</i>
+                                                    </x-success-button>
+                                                </td>
+                                                @if ($i > 0)
+                                                <td>
+                                                    <x-danger-button class="remove-row">
+                                                        <i class="material-icons">&#xe872;</i>
+                                                    </x-danger-button>
+                                                </td>
+                                                @endif
+                                            </tr>
+                                        </table>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -337,6 +385,7 @@
                     HorizontalRule,
                     Image,
                 ],
+                content: `{!! $pdf_content !!}`,
                 editorProps: {
                     attributes: {
                         class: 'format lg:format-lg dark:format-invert focus:outline-none format-blue max-w-none',
@@ -474,7 +523,7 @@
             });
 
 
-            $('#create_materials').submit(function(e) {
+            $('#update_materials').submit(function(e) {
                 e.preventDefault();
 
                 $('#loader-overlay').show();
@@ -485,7 +534,7 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: "{{ route('content.store') }}",
+                    url: "{{ route('content.update', $content) }}",
                     data: formData,
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -513,7 +562,7 @@
                 $('#loader').css('border-color', '#000000');
             }
 
-            var rowIndex = 1;
+            var rowIndex = "{{ $rowLength }}";
 
             function addNewRow() {
                 var newRow = '<tr class="main-row">' +

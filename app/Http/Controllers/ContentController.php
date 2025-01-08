@@ -12,6 +12,8 @@ use Spatie\LaravelPdf\Enums\Unit;
 use App\DataProcessing;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\DB;
 
 class ContentController extends Controller
 {
@@ -62,26 +64,29 @@ class ContentController extends Controller
                 return response()->json(['error' => 'Notes cannot be empty.'], 422);
             }
 
-            $snake_title = preg_replace('/\s+/', '_', $request->input('title')); // Replace spaces with underscores
-            $snake_title = preg_replace('/[^a-zA-Z0-9]/', '_', $snake_title); // Replace non-alphanumeric characters with underscores
-            strtolower($snake_title);
-
-            // $pdfFilePath = public_path('pdf/' . $snake_title . '.pdf');
-            $pdfFilePath = storage_path('app/public/pdf/' . $snake_title . '.pdf');;
+            $snake_title = snakeTitle($request->input('title'));
 
             $string = preg_replace('/[^A-Za-z ]/', '', strip_tags($request->input('pdf_content')));
             $string = Str::replace('gtgtgt', '', $string);
 
             $tags = $this->iteratedLda($string, 10);
 
+            $pdfId = DB::select("SHOW TABLE STATUS LIKE 'content'")[0]->Auto_increment;
+            $dir = 'app/public/pdf/' . $pdfId . '/';
+            File::makeDirectory(storage_path('app/public/pdf/' . $pdfId));
+
+            $pdfFilePath = storage_path($dir . $snake_title . '.pdf');
+            $htmlFilePath = storage_path($dir . $snake_title . '.txt');
+
+            File::put($htmlFilePath, $request->input('pdf_content'));
+
             // Generate PDF from the temporary Blade view
             Pdf::View('content.temp', ['content' => $request->input('pdf_content')])
                 ->margins(64, 64, 64, 64, Unit::Pixel)
                 ->save($pdfFilePath);
 
-
             // Get the URL of the saved PDF file
-            $pdfUrl = url('storage/pdf/' . basename($pdfFilePath));
+            $pdfUrl = url('storage/pdf/' . $pdfId . '/' . basename($pdfFilePath));
         }
 
         $exerciseDetailsJson = null;
@@ -128,16 +133,18 @@ class ContentController extends Controller
             return $item['value'];
         }, json_decode($request->input('tags'), true));
 
+        $mergedTagArray = array_values(array_unique(array_merge($tags, $inputTags)));
+
         Content::create([
             'title' => $request->input('title'),
             'description' => $request->input('description'),
             'type' => $request->input('type'),
             'pdf_url' => $pdfUrl,
             'exercise_details' => $exerciseDetailsJson,
-            'tags' => json_encode(array_unique(array_merge($tags, $inputTags))),
+            'tags' => json_encode($mergedTagArray),
         ]);
 
-        return redirect()->route('content.create');
+        return redirect()->route('content');
     }
 
 
@@ -159,19 +166,14 @@ class ContentController extends Controller
             return ['value' => $item];
         }, json_decode($content->tags)));
 
+        $pdfContent = File::get(storage_path('app\public\pdf\\' . $content->id . '\\' . snakeTitle($content->title) . '.txt'));
+
         return view('content.edit', [
             'content' => $content,
             'default_content_type' => $content->pdf_url ? 'notes' : 'exercise',
-            'content_types' => [
-                'notes' => 'Notes',
-                'exercise' => 'Exercise'
-            ],
-            "question_types" => [
-                'short' => 'Short Question',
-                'mc' => 'Multiple Choice'
-            ],
             'tags' => json_encode(Tag::pluck('name')),
             'default_tags' => $defaultTags,
+            'pdf_content' => $pdfContent,
         ]);
     }
 
@@ -180,7 +182,95 @@ class ContentController extends Controller
      */
     public function update(UpdateContentRequest $request, Content $content)
     {
-        //
+        $request->validate([
+            'title' => 'required|string|max:50',
+            'description' => 'required|string|max:255',
+            'type' => 'required|string|in:notes,exercise',
+        ]);
+
+        $tags = [];
+
+        $pdfUrl = null;
+        if ($request->input('type') == 'notes') {
+
+            if ($request->input('pdf_content') == '<p></p>') {
+                return response()->json(['error' => 'Notes cannot be empty.'], 422);
+            }
+
+            $snake_title = snakeTitle($request->input('title'));
+
+            $string = preg_replace('/[^A-Za-z ]/', '', strip_tags($request->input('pdf_content')));
+            $string = Str::replace('gtgtgt', '', $string);
+
+            $tags = $this->iteratedLda($string, 10);
+
+            $pdfId = $content->id;
+            $dir = 'app/public/pdf/' . $pdfId . '/';
+
+            $pdfFilePath = storage_path($dir . $snake_title . '.pdf');
+            $htmlFilePath = storage_path($dir . $snake_title . '.txt');
+
+            File::put($htmlFilePath, $request->input('pdf_content'));
+
+            // Generate PDF from the temporary Blade view
+            Pdf::View('content.temp', ['content' => $request->input('pdf_content')])
+                ->margins(64, 64, 64, 64, Unit::Pixel)
+                ->save($pdfFilePath);
+        }
+
+        $exerciseDetailsJson = null;
+        if ($request->input('type') == 'exercise') {
+            $exerciseDetails = [];
+            $questionList = $request->input('question');
+            $mcList = $request->input('mc');
+            $answerList = $request->input('answer');
+
+            // Re-index questions to avoid missing indices
+            $reindexedPayload = [];
+            foreach ($questionList as $index => $question) {
+                $type = $request->input('question_type')[$index];
+
+                $reindexedPayload[$index] = [
+                    'question' => $question,
+                    'type' => $type,
+                    'answer' => $answerList[$index],
+                ];
+
+                // If it's a multiple choice question, add the choices
+                if ($type == 'mc') {
+                    $mcInput = $mcList[$index];
+                    $reindexedPayload[$index]['mc'] = [
+                        $mcInput[0],
+                        $mcInput[1],
+                        $mcInput[2],
+                        $mcInput[3]
+                    ];
+                    $reindexedPayload[$index]['answer'] = $request->input('answer_')[$index];
+                }
+            }
+
+            // Loop through the re-indexed payload
+            foreach ($reindexedPayload as $data) {
+                $exerciseDetails[] = $data;
+            }
+
+            // Store the processed data as a JSON array
+            $exerciseDetailsJson = json_encode($exerciseDetails);
+        }
+
+        $inputTags = array_map(function ($item) {
+            return $item['value'];
+        }, json_decode($request->input('tags'), true));
+
+        $content->update([
+            'title' => $request->input('title'),
+            'description' => $request->input('description'),
+            'type' => $request->input('type'),
+            'exercise_details' => $exerciseDetailsJson,
+            'tags' => json_encode(array_unique(array_merge($tags, $inputTags))),
+        ]);
+
+        return redirect()->route('content');
     }
 
     /**
@@ -189,15 +279,8 @@ class ContentController extends Controller
     public function destroy(Content $content)
     {
         if ($content->pdf_url) {
-            $path = parse_url($content->pdf_url, PHP_URL_PATH);
-            $fileToDelete = basename($path);
-
-            $filePath = storage_path('app\public\pdf\\' . $fileToDelete);
-
-            if (file_exists($filePath)) {
-                // Delete the file
-                unlink($filePath);
-            }
+            $filePath = storage_path('app/public/pdf/' . $content->id);
+            File::deleteDirectory($filePath);
         }
 
         $content->delete();
