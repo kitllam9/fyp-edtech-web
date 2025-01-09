@@ -46,9 +46,6 @@
                         <x-text-input id="description" class="block mt-2 w-full" type="text" name="description" value="{{ $content->description }}" required />
                     </div>
                     <div class="mb-4">
-                        <!-- <x-input-label>
-                            {{ __('Type') }}
-                        </x-input-label> -->
                         <x-select id="type" name="type" class="mt-2 hidden" :options="$content_types" :defaultValue="$default_content_type" />
                     </div>
                     <div class="mb-4">
@@ -62,6 +59,8 @@
                             name="tags"
                             value="{{ $default_tags }}" />
                     </div>
+                    <input id="regenerate_tags" name="regenerate_tags" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                    <x-input-label for="regenerate_tags" class="inline-block mb-4 ml-1 text-xs">{{ __('Re-generate Tags with Topic Modeling') }}</x-input-label>
                     <div class="mb-4 text-editor-section">
                         <x-text-editor id="content" />
                         <input type="hidden" name="pdf_content" id="pdf_content" value="">

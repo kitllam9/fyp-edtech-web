@@ -53,7 +53,11 @@
                             <td class="px-6 py-4 max-w-24 whitespace-nowrap">{{ $c->title }}</td>
                             <td class="px-6 py-4 max-w-24 whitespace-nowrap">{{ $c->type }}</td>
                             <td class="px-6 py-4 max-w-24 whitespace-nowrap">{{ $c->pdf_url ? $c->pdf_url : '' }}</td>
-                            <td class="px-6 py-4 max-w-24 whitespace-nowrap">{{ $c->tags }}</td>
+                            <td class="px-6 py-4 max-w-24 whitespace-nowrap">
+                                @foreach(json_decode($c->tags) as $index => $tag)
+                                {{ $tag }}@if(!$loop->last), @endif
+                                @endforeach
+                            </td>
                             <td class="px-6 py-4 max-w-24 whitespace-nowrap">
                                 <form method="POST" class="inline" action="{{ route('content.delete', $c) }}">
                                     @csrf

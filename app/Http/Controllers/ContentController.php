@@ -68,7 +68,6 @@ class ContentController extends Controller
 
             $string = preg_replace('/[^A-Za-z ]/', '', strip_tags($request->input('pdf_content')));
             $string = Str::replace('gtgtgt', '', $string);
-
             $tags = $this->iteratedLda($string, 10);
 
             $pdfId = DB::select("SHOW TABLE STATUS LIKE 'content'")[0]->Auto_increment;
@@ -190,7 +189,6 @@ class ContentController extends Controller
 
         $tags = [];
 
-        $pdfUrl = null;
         if ($request->input('type') == 'notes') {
 
             if ($request->input('pdf_content') == '<p></p>') {
@@ -199,13 +197,20 @@ class ContentController extends Controller
 
             $snake_title = snakeTitle($request->input('title'));
 
-            $string = preg_replace('/[^A-Za-z ]/', '', strip_tags($request->input('pdf_content')));
-            $string = Str::replace('gtgtgt', '', $string);
-
-            $tags = $this->iteratedLda($string, 10);
+            if ($request->input('regenerate_tags')) {
+                $string = preg_replace('/[^A-Za-z ]/', '', strip_tags($request->input('pdf_content')));
+                $string = Str::replace('gtgtgt', '', $string);
+                $tags = $this->iteratedLda($string, 10);
+            }
 
             $pdfId = $content->id;
             $dir = 'app/public/pdf/' . $pdfId . '/';
+
+            $files = File::allFiles(storage_path('app/public/pdf/' . $pdfId));
+
+            foreach ($files as $file) {
+                File::delete($file);
+            }
 
             $pdfFilePath = storage_path($dir . $snake_title . '.pdf');
             $htmlFilePath = storage_path($dir . $snake_title . '.txt');
@@ -262,12 +267,14 @@ class ContentController extends Controller
             return $item['value'];
         }, json_decode($request->input('tags'), true));
 
+        $mergedTagArray = array_values(array_unique(array_merge($tags, $inputTags)));
+
         $content->update([
             'title' => $request->input('title'),
             'description' => $request->input('description'),
             'type' => $request->input('type'),
             'exercise_details' => $exerciseDetailsJson,
-            'tags' => json_encode(array_unique(array_merge($tags, $inputTags))),
+            'tags' => json_encode($mergedTagArray),
         ]);
 
         return redirect()->route('content');
