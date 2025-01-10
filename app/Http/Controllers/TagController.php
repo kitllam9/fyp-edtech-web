@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tag;
+use App\Models\Content;
 use App\Http\Requests\StoreTagRequest;
 use App\Http\Requests\UpdateTagRequest;
 
@@ -15,8 +16,6 @@ class TagController extends Controller
     {
         //
     }
-
-    public function get() {}
 
     /**
      * Show the form for creating a new resource.

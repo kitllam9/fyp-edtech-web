@@ -50,7 +50,7 @@ class ContentController extends Controller
     public function store(StoreContentRequest $request)
     {
         $request->validate([
-            'title' => 'required|string|max:50',
+            'title' => 'required|string|max:100',
             'description' => 'required|string|max:255',
             'type' => 'required|string|in:notes,exercise',
         ]);
@@ -143,6 +143,12 @@ class ContentController extends Controller
             'tags' => json_encode($mergedTagArray),
         ]);
 
+        Tag::insertOrIgnore(
+            collect($mergedTagArray)->map(function ($item, $key) {
+                return ['name' => $item];
+            })->all()
+        );
+
         return redirect()->route('content');
     }
 
@@ -182,7 +188,7 @@ class ContentController extends Controller
     public function update(UpdateContentRequest $request, Content $content)
     {
         $request->validate([
-            'title' => 'required|string|max:50',
+            'title' => 'required|string|max:100',
             'description' => 'required|string|max:255',
             'type' => 'required|string|in:notes,exercise',
         ]);
@@ -221,6 +227,8 @@ class ContentController extends Controller
             Pdf::View('content.temp', ['content' => $request->input('pdf_content')])
                 ->margins(64, 64, 64, 64, Unit::Pixel)
                 ->save($pdfFilePath);
+
+            $pdfUrl = url('storage/pdf/' . $pdfId . '/' . basename($pdfFilePath));
         }
 
         $exerciseDetailsJson = null;
@@ -273,9 +281,18 @@ class ContentController extends Controller
             'title' => $request->input('title'),
             'description' => $request->input('description'),
             'type' => $request->input('type'),
+            'pdf_url' => $pdfUrl,
             'exercise_details' => $exerciseDetailsJson,
             'tags' => json_encode($mergedTagArray),
         ]);
+
+        Tag::insertOrIgnore(
+            collect($mergedTagArray)->map(function ($item, $key) {
+                return ['name' => $item];
+            })->all()
+        );
+
+        $this->checkUnusedTags();
 
         return redirect()->route('content');
     }
@@ -324,5 +341,17 @@ class ContentController extends Controller
         return array_keys(array_filter($wordsCount, function ($count) use ($it) {
             return $count > ($it / 3);
         }));
+    }
+
+    private function checkUnusedTags()
+    {
+        $contents = Content::all();
+
+        // Extract all tags into a single collection using Laravel collection methods
+        $allTags = $contents->flatMap(function ($content) {
+            return json_decode($content->tags, true);
+        })->unique();
+
+        Tag::whereNotIn('name', $allTags)->delete();
     }
 }

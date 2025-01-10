@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('contents', function (Blueprint $table) {
             $table->id();
+            $table->string('title', 100);
+            $table->string('description', 255);
+            $table->enum('type', ['notes', 'exercise'])->default('notes');
+            $table->string('pdf_url', 100)->nullable();
+            $table->longText('exercise_details')->nullable();
+            $table->longText('tags')->nullable();
             $table->timestamps();
         });
     }

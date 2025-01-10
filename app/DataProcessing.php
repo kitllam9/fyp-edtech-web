@@ -2,6 +2,8 @@
 
 namespace App;
 
+use Illuminate\Support\Str;
+
 use NlpTools\FeatureFactories\DataAsFeatures;
 use NlpTools\Tokenizers\WhitespaceTokenizer;
 use NlpTools\Documents\TokensDocument;
@@ -52,6 +54,10 @@ class DataProcessing
         $topWords = array_filter($topWords, function ($value) {
             return strlen($value) > 1;
         });
+
+        $topWords =  array_map(function ($str) {
+            return Str::title($str);
+        }, $topWords);
 
         return $topWords;
     }

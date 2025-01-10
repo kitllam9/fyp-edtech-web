@@ -705,28 +705,12 @@
                     closeOnSelect: false,
                 },
                 whitelist: tags,
-                hooks: {
-                    suggestionClick(e) {
-                        var isAction = e.target.classList.contains('removeBtn'),
-                            suggestionElm = e.target.closest('.tagify__dropdown__item'),
-                            value = suggestionElm.getAttribute('value');
-
-                        return new Promise(function(resolve, reject) {
-                            if (isAction) {
-                                removeWhitelistItem(value);
-                                tagify.dropdown.refilter.call(tagify);
-                                reject();
-                            }
-                            resolve();
-                        });
-                    },
-                },
+                enforceWhitelist: true,
             });
 
-            function removeWhitelistItem(value) {
-                var index = tagify.settings.whitelist.indexOf(value);
-                if (value && index > -1) tagify.settings.whitelist.splice(index, 1);
-            }
+            tagify.on('add', () => function onAddTag(e) {
+                tagify.off('add', onAddTag) // exmaple of removing a custom Tagify event
+            });
         }
     })
 </script>
