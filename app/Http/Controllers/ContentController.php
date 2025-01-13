@@ -171,14 +171,16 @@ class ContentController extends Controller
             return ['value' => $item];
         }, json_decode($content->tags)));
 
-        $pdfContent = File::get(storage_path('app\public\pdf\\' . $content->id . '\\' . snakeTitle($content->title) . '.txt'));
+        if ($content->pdf_url) {
+            $pdfContent = File::get(storage_path('app\public\pdf\\' . $content->id . '\\' . snakeTitle($content->title) . '.txt'));
+        }
 
         return view('content.edit', [
             'content' => $content,
             'default_content_type' => $content->pdf_url ? 'notes' : 'exercise',
             'tags' => json_encode(Tag::pluck('name')),
             'default_tags' => $defaultTags,
-            'pdf_content' => $pdfContent,
+            'pdf_content' => $content->pdf_url ? $pdfContent : '',
         ]);
     }
 
@@ -191,10 +193,12 @@ class ContentController extends Controller
             'title' => 'required|string|max:100',
             'description' => 'required|string|max:255',
             'type' => 'required|string|in:notes,exercise',
+            'difficulty' => 'required|string|in:easy,medium,advanced',
         ]);
 
         $tags = [];
 
+        $pdfUrl = null;
         if ($request->input('type') == 'notes') {
 
             if ($request->input('pdf_content') == '<p></p>') {
@@ -284,6 +288,7 @@ class ContentController extends Controller
             'pdf_url' => $pdfUrl,
             'exercise_details' => $exerciseDetailsJson,
             'tags' => json_encode($mergedTagArray),
+            'difficulty' => $request->input('difficulty'),
         ]);
 
         Tag::insertOrIgnore(

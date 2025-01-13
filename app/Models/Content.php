@@ -13,6 +13,7 @@ class Content extends Model
         'type',
         'pdf_url',
         'exercise_details',
-        'tags'
+        'tags',
+        'difficulty',
     ];
 }

@@ -8,6 +8,11 @@
     'short' => 'Short Question',
     'mc' => 'Multiple Choice'
     ];
+    $difficulty_types = [
+    'easy' => 'Easy',
+    'medium' => 'Medium',
+    'advanced' => 'Advanced',
+    ];
     $rowLength = json_decode($content->exercise_details) ? count(json_decode($content->exercise_details)) : 1;
     $option_1 = '';
     $option_2 = '';
@@ -59,8 +64,17 @@
                             name="tags"
                             value="{{ $default_tags }}" />
                     </div>
-                    <input id="regenerate_tags" name="regenerate_tags" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                    <x-input-label for="regenerate_tags" class="inline-block mb-4 ml-1 text-xs">{{ __('Re-generate Tags with Topic Modeling') }}</x-input-label>
+                    @if ($content->pdf_url)
+                    <x-checkbox id="regenerate_tags" name="regenerate_tags"></x-checkbox>
+                    <x-input-label for="regenerate_tags" class="inline-block mb-5 ml-1 text-xs">{{ __('Re-generate Tags with Topic Modeling') }}</x-input-label>
+                    @endif
+                    <div class="mb-4">
+                        <x-input-label>
+                            {{ __('Difficulty') }}
+                        </x-input-label>
+                        <x-select id="difficulty" name="difficulty" class="mt-2" :options="$difficulty_types" :defaultValue="$content->difficulty" />
+                    </div>
+
                     <div class="mb-4 text-editor-section">
                         <x-text-editor id="content" />
                         <input type="hidden" name="pdf_content" id="pdf_content" value="">

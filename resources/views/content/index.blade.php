@@ -37,6 +37,9 @@
                                 Type
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Difficulty
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 URL
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -51,7 +54,8 @@
                         @foreach($content as $c)
                         <tr>
                             <td class="px-6 py-4 max-w-24 whitespace-nowrap">{{ $c->title }}</td>
-                            <td class="px-6 py-4 max-w-24 whitespace-nowrap">{{ $c->type }}</td>
+                            <td class="px-6 py-4 max-w-6 whitespace-nowrap">{{ ucwords($c->type) }}</td>
+                            <td class="px-6 py-4 max-w-6 whitespace-nowrap">{{ ucwords($c->difficulty) }}</td>
                             <td class="px-6 py-4 max-w-24 whitespace-nowrap">{{ $c->pdf_url ? $c->pdf_url : '' }}</td>
                             <td class="px-6 py-4 max-w-24 whitespace-nowrap">
                                 @foreach(json_decode($c->tags) as $index => $tag)
