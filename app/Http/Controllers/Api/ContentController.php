@@ -9,6 +9,9 @@ use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Pagination\LengthAwarePaginator;
+
+use Tigo\Recommendation\Recommend;
 
 use function PHPUnit\Framework\fileExists;
 
@@ -17,9 +20,62 @@ class ContentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function search()
+    public function search(Request $request)
     {
-        return $this->success(data: Content::latest()->paginate(10));
+        // $contents = Content::latest();
+        if (Recommendation::exists()) {
+            $client = new Recommend();
+            $rank = $client->ranking(Recommendation::all()->toArray(), $request->user()->id);
+            $tags = Tag::whereIn('id', array_keys($rank));
+
+            $tagNames = $tags->pluck('name')->toArray();
+
+            if (!empty($tagNames)) {
+                // Create the WHERE LIKE clause for the tag names
+                $likeConditions = collect($tagNames)->map(function ($name) {
+                    return "tags LIKE '%" . $name . "%'";
+                })->implode(' OR ');
+
+
+                // Retrieve records from OtherTable where the names are in the JSON encoded string
+                $contents = Content::whereRaw($likeConditions)->get();
+
+                // Assign the values in $rank to the fetched records
+                $contents->each(function ($content) use ($rank) {
+                    $contentTags = $content->tag_ids;
+                    $score = 0;
+
+                    foreach ($contentTags as $tag) {
+                        if (array_key_exists($tag, $rank)) {
+                            $score += $rank[$tag];
+                        }
+                    }
+
+                    $content->recommendation_score = $score / count($contentTags);
+                });
+
+                $latestContents = Content::latest('updated_at')->get();
+                $contents = collect($contents);
+                $mergedContents = $latestContents->merge($contents);
+                $sortedContents = $mergedContents->sortByDesc('recommendation_score')->values();
+
+                $perPage = 15;
+                $page = LengthAwarePaginator::resolveCurrentPage('page');
+
+                $paginatedData = new LengthAwarePaginator($sortedContents->forPage($page, $perPage), $sortedContents->count(), $perPage, $page, [
+                    'path' => LengthAwarePaginator::resolveCurrentPath(),
+                    'query' => request()->query(),
+                ]);
+
+                return $this->success(
+                    data: $paginatedData,
+                );
+            }
+        } else {
+            return $this->success(
+                data: Content::latest('updated_at')->paginate(10),
+            );
+        }
     }
 
     public function complete(Request $request, int $id)

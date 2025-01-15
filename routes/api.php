@@ -17,10 +17,10 @@ Route::prefix('user')->group(function () {
 });
 
 Route::prefix('content')->group(function () {
-    Route::get('/', [ContentController::class, 'search']);
     Route::get('/get-pdf/{id}', [ContentController::class, 'getPdf']);
 
     Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/', [ContentController::class, 'search']);
         Route::get('/complete/{id}', [ContentController::class, 'complete']);
     });
 });

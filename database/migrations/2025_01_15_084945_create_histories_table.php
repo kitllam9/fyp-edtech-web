@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('recommendations', function (Blueprint $table) {
+        Schema::create('histories', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('product_id');
-            $table->integer('score');
+            $table->unsignedBigInteger('content_id');
             $table->unsignedBigInteger('user_id');
+            $table->enum('status', ['completed', 'bookmarked'])->default('completed');
 
-            $table->foreign('product_id')->references('id')->on('tags');
+            $table->foreign('content_id')->references('id')->on('content');
             $table->foreign('user_id')->references('id')->on('users');
-            $table->unique(['product_id', 'user_id']);
+            $table->timestamps();
         });
     }
 
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('recommendations');
+        Schema::dropIfExists('histories');
     }
 };
