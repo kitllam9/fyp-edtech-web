@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Content;
+use App\Models\History;
 use App\Models\Recommendation;
 use App\Models\Tag;
 use Illuminate\Http\Request;
@@ -22,7 +23,12 @@ class ContentController extends Controller
      */
     public function search(Request $request)
     {
-        // $contents = Content::latest();
+        $default = Content::whereNotIn('id', function ($query) use ($request) {
+            $query->select('content_id')
+                ->from('histories')
+                ->where('user_id', $request->user()->id);
+        })->latest('updated_at');
+
         if (Recommendation::exists()) {
             $client = new Recommend();
             $rank = $client->ranking(Recommendation::all()->toArray(), $request->user()->id);
@@ -38,10 +44,10 @@ class ContentController extends Controller
 
 
                 // Retrieve records from OtherTable where the names are in the JSON encoded string
-                $contents = Content::whereRaw($likeConditions)->get();
+                $recommendations = Content::whereRaw($likeConditions)->get();
 
                 // Assign the values in $rank to the fetched records
-                $contents->each(function ($content) use ($rank) {
+                $recommendations->each(function ($content) use ($rank) {
                     $contentTags = $content->tag_ids;
                     $score = 0;
 
@@ -54,15 +60,15 @@ class ContentController extends Controller
                     $content->recommendation_score = $score / count($contentTags);
                 });
 
-                $latestContents = Content::latest('updated_at')->get();
-                $contents = collect($contents);
-                $mergedContents = $latestContents->merge($contents);
-                $sortedContents = $mergedContents->sortByDesc('recommendation_score')->values();
+                $latestUnviewed = $default->get();
+                $recommendations = collect($recommendations);
+                $merged = $latestUnviewed->merge($recommendations);
+                $sorted = $merged->sortByDesc('recommendation_score');
 
-                $perPage = 15;
+                $perPage = 10;
                 $page = LengthAwarePaginator::resolveCurrentPage('page');
 
-                $paginatedData = new LengthAwarePaginator($sortedContents->forPage($page, $perPage), $sortedContents->count(), $perPage, $page, [
+                $paginatedData = new LengthAwarePaginator($sorted->forPage($page, $perPage)->values(), $sorted->count(), $perPage, $page, [
                     'path' => LengthAwarePaginator::resolveCurrentPath(),
                     'query' => request()->query(),
                 ]);
@@ -71,24 +77,34 @@ class ContentController extends Controller
                     data: $paginatedData,
                 );
             }
-        } else {
-            return $this->success(
-                data: Content::latest('updated_at')->paginate(10),
-            );
         }
+
+        return $this->success(
+            data: $default->paginate(10),
+        );
     }
 
     public function complete(Request $request, int $id)
     {
         $content = Content::find($id);
-        foreach (json_decode($content->tags) as $name) {
+        $tags = json_decode($content->tags);
+        $user = $request->user();
+        foreach ($tags as $name) {
             $tag = Tag::where('name', $name)->first();
             Recommendation::insertOrIgnore([
                 'product_id' => $tag->id,
                 'score' => 1,
-                'user_id' => $request->user()->id,
+                'user_id' => $user->id,
             ]);
         }
+        $interests = array_unique(array_merge(json_decode($user->interest ?? '[]'), $tags));
+        sort($interests);
+        $user->update(['interest' => $interests]);
+        History::create([
+            'content_id' => $id,
+            'user_id' => $user->id,
+            'status' => 'completed',
+        ]);
         return $this->success(message: 'Completed');
     }
 

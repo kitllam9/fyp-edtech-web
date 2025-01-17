@@ -15,7 +15,8 @@ class UserController extends Controller
             return $this->success(
                 data: $user->only([
                     'username',
-                    'email'
+                    'email',
+                    'interest'
                 ])
             );
         } else {

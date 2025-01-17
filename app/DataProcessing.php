@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 use NlpTools\FeatureFactories\DataAsFeatures;
@@ -11,6 +12,8 @@ use NlpTools\Documents\TrainingSet;
 use NlpTools\Models\Lda;
 
 use StopWords\StopWords;
+
+use Pdo;
 
 class DataProcessing
 {
@@ -61,4 +64,6 @@ class DataProcessing
 
         return $topWords;
     }
+
+    public static function userClustering() {}
 }
