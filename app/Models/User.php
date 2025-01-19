@@ -8,6 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
+
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -23,7 +25,8 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
-        'interest'
+        'interest',
+        'group_id'
     ];
 
     /**
@@ -46,6 +49,18 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'interest' => 'array',
         ];
+    }
+
+    protected function interestIds(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->interest->map(function ($item) {
+                return $item->map(function ($i) {
+                    return Tag::where('name', $i)->first()->id;
+                });
+            })->toArray(),
+        );
     }
 }

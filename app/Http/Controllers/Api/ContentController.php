@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\DataProcessing;
 use App\Http\Controllers\Controller;
 use App\Models\Content;
 use App\Models\History;
@@ -89,6 +90,8 @@ class ContentController extends Controller
         $content = Content::find($id);
         $tags = json_decode($content->tags);
         $user = $request->user();
+
+        // Create recommendation data
         foreach ($tags as $name) {
             $tag = Tag::where('name', $name)->first();
             Recommendation::insertOrIgnore([
@@ -97,14 +100,23 @@ class ContentController extends Controller
                 'user_id' => $user->id,
             ]);
         }
+
+        // Create user interests
         $interests = array_unique(array_merge(json_decode($user->interest ?? '[]'), $tags));
         sort($interests);
         $user->update(['interest' => $interests]);
+
+        /**
+         * TEMPORARY
+         * Regression for recommendation --> Too complicated with too many parameters
+         */
         History::create([
             'content_id' => $id,
             'user_id' => $user->id,
             'status' => 'completed',
         ]);
+
+        DataProcessing::userClustering();
         return $this->success(message: 'Completed');
     }
 

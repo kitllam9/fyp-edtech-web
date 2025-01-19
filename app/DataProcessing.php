@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\Models\Tag;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -10,6 +12,14 @@ use NlpTools\Tokenizers\WhitespaceTokenizer;
 use NlpTools\Documents\TokensDocument;
 use NlpTools\Documents\TrainingSet;
 use NlpTools\Models\Lda;
+
+use Phpml\Clustering\KMeans;
+use Phpml\Clustering\DBSCAN;
+use Phpml\Math\Distance\Minkowski;
+use Phpml\FeatureExtraction\TfIdfTransformer;
+use Phpml\FeatureExtraction\TokenCountVectorizer;
+use Phpml\Tokenization\WordTokenizer;
+
 
 use StopWords\StopWords;
 
@@ -65,5 +75,42 @@ class DataProcessing
         return $topWords;
     }
 
-    public static function userClustering() {}
+    public static function userClustering()
+    {
+        // Get the interests as string
+        $samples = User::select('id', 'interest')->get()->map(function ($item) {
+            return [$item['id'] => json_encode($item['interest'])];
+        })->reject(function ($item) {
+            return reset($item) === 'null';
+        })->toArray();
+
+        $values = array();
+        $keys = array();
+        foreach ($samples as $v) {
+            $values = array_merge($values, array_values($v));
+            $keys = array_merge($keys, array_keys($v));
+        }
+        $samples = array_combine($keys, $values);
+
+        $vectorizer = new TokenCountVectorizer(new WordTokenizer());
+
+        // Build the dictionary.
+        $vectorizer->fit($samples);
+
+        // Transform the provided text samples into a vectorized list.
+        $vectorizer->transform($samples);
+
+        // Clustering according to the vectorized string
+        $kmeans = new KMeans(2);
+        $clusters = $kmeans->cluster($samples);
+
+        // Assign `group_id` from the result of clustering to the users
+        foreach ($clusters as $id => $cluster) {
+            foreach ($cluster as $userId => $data) {
+                User::find($userId)->update(['group_id' => $id]);
+            }
+        }
+
+        dd($clusters);
+    }
 }
