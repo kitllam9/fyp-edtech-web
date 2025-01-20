@@ -16,6 +16,7 @@ class UserController extends Controller
                 data: $user->only([
                     'username',
                     'email',
+                    'points',
                     'interest'
                 ])
             );

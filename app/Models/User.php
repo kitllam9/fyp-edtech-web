@@ -26,6 +26,7 @@ class User extends Authenticatable
         'email',
         'password',
         'interest',
+        'points',
         'group_id'
     ];
 

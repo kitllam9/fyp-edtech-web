@@ -84,6 +84,10 @@ class DataProcessing
             return reset($item) === 'null';
         })->toArray();
 
+        if (count($samples) <= 1) {
+            return;
+        }
+
         $values = array();
         $keys = array();
         foreach ($samples as $v) {
@@ -110,7 +114,5 @@ class DataProcessing
                 User::find($userId)->update(['group_id' => $id]);
             }
         }
-
-        dd($clusters);
     }
 }

@@ -18,6 +18,10 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
+            $table->unsignedInteger('points')->default(0);
+            $table->longText('badges')->nullable();
+            $table->longText('interest')->nullable();
+            $table->unsignedBigInteger('group_id');
             $table->timestamps();
         });
     }

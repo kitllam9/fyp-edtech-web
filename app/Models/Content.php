@@ -15,6 +15,7 @@ class Content extends Model
         'pdf_url',
         'exercise_details',
         'tags',
+        'points',
         'difficulty',
     ];
 

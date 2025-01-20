@@ -70,6 +70,12 @@
                     @endif
                     <div class="mb-4">
                         <x-input-label>
+                            {{ __('Points') }}
+                        </x-input-label>
+                        <x-text-input id="points" class="block mt-2 w-full" type="number" name="points" value="{{ $content->points }}" required />
+                    </div>
+                    <div class="mb-4">
+                        <x-input-label>
                             {{ __('Difficulty') }}
                         </x-input-label>
                         <x-select id="difficulty" name="difficulty" class="mt-2" :options="$difficulty_types" :defaultValue="$content->difficulty" />

@@ -102,9 +102,13 @@ class ContentController extends Controller
         }
 
         // Create user interests
-        $interests = array_unique(array_merge(json_decode($user->interest ?? '[]'), $tags));
+        $interests = array_unique(array_merge($user->interest ?? [], $tags));
         sort($interests);
-        $user->update(['interest' => $interests]);
+
+        $user->update([
+            'interest' => $interests,
+            'points' => $user->points + $content->points
+        ]);
 
         /**
          * TEMPORARY

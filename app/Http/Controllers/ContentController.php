@@ -288,6 +288,7 @@ class ContentController extends Controller
             'pdf_url' => $pdfUrl,
             'exercise_details' => $exerciseDetailsJson,
             'tags' => json_encode($mergedTagArray),
+            'points' => $request->input('points'),
             'difficulty' => $request->input('difficulty'),
         ]);
 
