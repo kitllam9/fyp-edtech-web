@@ -8,3 +8,15 @@ function snakeTitle(string $str)
 
     return $snake_title;
 }
+
+function calculateMeanSquaredError($actual, $predicted)
+{
+    $sum = 0;
+    $n = count($actual);
+
+    for ($i = 0; $i < $n; $i++) {
+        $sum += pow($actual[$i] - $predicted[$i], 2);
+    }
+
+    return $sum / $n;
+}

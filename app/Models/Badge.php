@@ -9,4 +9,12 @@ class Badge extends Model
 {
     /** @use HasFactory<\Database\Factories\BadgeFactory> */
     use HasFactory;
+
+    public $timestamps = false;
+    protected $fillable = [
+        'name',
+        'description',
+        'type',
+        'target'
+    ];
 }

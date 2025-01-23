@@ -25,7 +25,8 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
-        'interest',
+        'interests',
+        'badges',
         'points',
         'group_id'
     ];
@@ -50,7 +51,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'interest' => 'array',
+            'interests' => 'array',
+            'badges' => 'array',
         ];
     }
 

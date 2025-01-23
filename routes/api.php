@@ -1,5 +1,6 @@
 <?php
 
+use App\DataProcessing;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContentController;
@@ -18,6 +19,7 @@ Route::prefix('user')->group(function () {
 
 Route::prefix('content')->group(function () {
     Route::get('/get-pdf/{id}', [ContentController::class, 'getPdf']);
+    Route::get('/grade', [ContentController::class, 'grade']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [ContentController::class, 'search']);

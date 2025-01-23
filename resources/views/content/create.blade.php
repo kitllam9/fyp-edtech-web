@@ -45,7 +45,6 @@
                             type="text"
                             class="w-full px-1 py-2 text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
                             name="tags" />
-                        <!-- <select class="w-full min-h-12" id="tags" name="tags[]" multiple="multiple"></select> -->
                     </div>
                     <div class="mb-4 text-editor-section">
                         <x-text-editor id="content" />
