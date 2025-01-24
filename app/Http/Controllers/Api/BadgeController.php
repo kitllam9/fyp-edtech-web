@@ -9,34 +9,40 @@ use Illuminate\Http\Request;
 
 class BadgeController extends Controller
 {
-    public function updateUserBadges(Request $request)
+    public function checkUpdate(Request $request)
     {
         // Update user points
         $user = $request->user();
+        $currentPoints = $user->points;
+        $targetPoints = $user->points + (int) $request->input('points');
         $user->update([
-            'points' => $user->points + $request->input('points')
+            'points' => $targetPoints
         ]);
 
         // Get unearned badges, then check if user has met the target points
-        $badges = Badge::where('type', 'points')->whereNotIn('id', $user->badges)->get();
-        $earnedBadgeIds = $user->$badges;
-        $nextRequirement = 0;
+        $badges = Badge::where('type', 'points')->whereNotIn('id', $user->badges ?? [])->get();
+        $earnedBadgeIds = [];
+        $targets = [];
         foreach ($badges as $badge) {
             if ($user->points < $badge->target) {
-                $nextRequirement = $badge->target;
+                $targets[] = $badge->target;
                 break;
             }
             $earnedBadgeIds[] = $badge->id;
+            $targets[] = $badge->target;
         }
 
         // Update user badges
         $user->update([
-            'badges' => json_encode($earnedBadgeIds),
+            'badges' => array_merge($user->badge ?? [], $earnedBadgeIds),
         ]);
 
         // Return the next requirement for displaying the progress bar on frontend
         return $this->success([
-            'nextRequirement' => $nextRequirement
+            'targets' => $targets,
+            'current_points' => $currentPoints,
+            'target_points' => $targetPoints,
+            'earned_badges' => Badge::whereIn('id', $earnedBadgeIds)->get(),
         ]);
     }
 }

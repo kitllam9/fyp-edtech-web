@@ -3,6 +3,7 @@
 use App\DataProcessing;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BadgeController;
 use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\Api\UserController;
 
@@ -24,5 +25,11 @@ Route::prefix('content')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [ContentController::class, 'search']);
         Route::get('/complete/{id}', [ContentController::class, 'complete']);
+    });
+});
+
+Route::prefix('badge')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/check', [BadgeController::class, 'checkUpdate']);
     });
 });
