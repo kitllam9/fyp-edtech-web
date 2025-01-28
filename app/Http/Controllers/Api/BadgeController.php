@@ -9,6 +9,12 @@ use Illuminate\Http\Request;
 
 class BadgeController extends Controller
 {
+    public function getBadges(Request $request)
+    {
+        return $this->success(data: [
+            'badges' => Badge::whereIn('id', json_decode($request->input('badge_ids') ?? '[]'))->get()
+        ]);
+    }
     public function checkUpdate(Request $request)
     {
         // Update user points

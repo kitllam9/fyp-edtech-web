@@ -14,6 +14,7 @@ Route::prefix('user')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [UserController::class, 'getUser']);
+        Route::get('/rank', [UserController::class, 'getRanking']);
         Route::get('/logout', [AuthController::class, 'logout']);
     });
 });
@@ -30,6 +31,7 @@ Route::prefix('content')->group(function () {
 
 Route::prefix('badge')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/', [BadgeController::class, 'getBadges']);
         Route::get('/check', [BadgeController::class, 'checkUpdate']);
     });
 });

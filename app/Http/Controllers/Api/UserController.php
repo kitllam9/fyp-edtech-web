@@ -11,18 +11,25 @@ class UserController extends Controller
 {
     public function getUser(Request $request)
     {
+        return $this->success(
+            data: $request->user()->only([
+                'username',
+                'email',
+                'points',
+                'interests',
+                'badges'
+            ])
+        );
+    }
+
+    public function getRanking(Request $request)
+    {
         $user = $request->user();
-        if ($user) {
+        if ($user->group_id !== null) {
             return $this->success(
-                data: $user->only([
-                    'username',
-                    'email',
-                    'points',
-                    'interest'
-                ])
+                data: User::where('group_id', $user->group_id)->orderByDesc('points')->paginate(10)
             );
-        } else {
-            return $this->failed(message: 'Unauthenticated.');
         }
+        return $this->success(message: 'Not enough data...');
     }
 }

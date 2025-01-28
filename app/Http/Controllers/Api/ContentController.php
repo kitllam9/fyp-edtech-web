@@ -28,7 +28,20 @@ class ContentController extends Controller
             $query->select('content_id')
                 ->from('histories')
                 ->where('user_id', $request->user()->id);
-        })->latest('updated_at');
+        });
+
+        $query = $request->query('keyword');
+        if ($query) {
+            $results = $default->where(function ($subQuery) use ($query) {
+                $subQuery->where('title', 'LIKE', '%' . $query . '%')
+                    ->orWhere('tags', 'LIKE', '%' . $query . '%')
+                    ->orWhere('description', 'LIKE', '%' . $query . '%');
+            });
+
+            return $this->success(
+                data: $results->latest('updated_at')->paginate(10),
+            );
+        }
 
         if (Recommendation::exists()) {
             $client = new Recommend();
@@ -81,7 +94,7 @@ class ContentController extends Controller
         }
 
         return $this->success(
-            data: $default->paginate(10),
+            data: $default->latest('updated_at')->paginate(10),
         );
     }
 
