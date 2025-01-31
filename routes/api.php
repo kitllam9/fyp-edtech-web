@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BadgeController;
 use App\Http\Controllers\Api\ContentController;
+use App\Http\Controllers\Api\QuestController;
 use App\Http\Controllers\Api\UserController;
 
 
@@ -14,6 +15,7 @@ Route::prefix('user')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [UserController::class, 'getUser']);
+        Route::put('/', [UserController::class, 'update']);
         Route::get('/rank', [UserController::class, 'getRanking']);
         Route::get('/logout', [AuthController::class, 'logout']);
     });
@@ -33,5 +35,11 @@ Route::prefix('badge')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [BadgeController::class, 'getBadges']);
         Route::get('/check', [BadgeController::class, 'checkUpdate']);
+    });
+});
+
+Route::prefix('quest')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/', [QuestController::class, 'getQuestsWithStatus']);
     });
 });

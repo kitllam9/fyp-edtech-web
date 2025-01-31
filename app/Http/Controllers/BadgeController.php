@@ -15,7 +15,7 @@ class BadgeController extends Controller
      */
     public function index()
     {
-        return view('badges.index', ['badges' => Badge::all()]);
+        return view('badge.index', ['badges' => Badge::all()]);
     }
 
     /**
@@ -30,7 +30,7 @@ class BadgeController extends Controller
             return [$bT->value => Str::title($bT->name)];
         })->all();
 
-        return view('badges.create', data: [
+        return view('badge.create', data: [
             'badge_type' => $badgeTypes,
         ]);
     }
@@ -72,7 +72,7 @@ class BadgeController extends Controller
             return [$bT->value => Str::title($bT->name)];
         })->all();
 
-        return view('badges.edit', [
+        return view('badge.edit', [
             'badge' => $badge,
             'badge_type' => $badgeTypes,
         ]);

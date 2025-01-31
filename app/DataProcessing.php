@@ -111,6 +111,11 @@ class DataProcessing
         // Transform the provided text samples into a vectorized list.
         $vectorizer->transform($samples);
 
+        $tfidf = array_values($samples);
+        $transformer = new TfIdfTransformer($tfidf);
+        $transformer->transform($tfidf);
+
+        $samples = array_combine($keys, $tfidf);
         // Clustering according to the vectorized string
         $kmeans = new KMeans(2);
         $clusters = $kmeans->cluster($samples);
@@ -123,100 +128,44 @@ class DataProcessing
         }
     }
 
-    public static function parseDataset()
-    {
-        $jsonData = file_get_contents(storage_path('app/public/train-v1.1.json'));
-        $data = json_decode($jsonData, true);
+    // public static function train()
+    // {
+    //     // Load the processed dataset from the JSON file
+    //     $datasetFile = storage_path('app/public/processed_dataset.json');
+    //     $rawDataset = json_decode(file_get_contents($datasetFile), true);
 
-        $data = $data['data'];
-        $dataset = [];
+    //     $samples = [];
 
-        foreach ($data as $article) {
-            // Iterate through paragraphs and questions
-            foreach ($article['paragraphs'] as $paragraph) {
-                $context = $paragraph['context'];
+    //     shuffle($rawDataset);  // reorder the array. 
+    //     $random = array_slice($rawDataset, 0, 2000); // cut off after $count elements.
 
-                foreach ($paragraph['qas'] as $qa) {
-                    $id = $qa['id'];
-                    $question = $qa['question'];
+    //     foreach ($random as $data) {
+    //         for ($i = 0; $i < count($data['answers']); $i++) {
+    //             $text = $data['question'];
+    //             $samples[] = [$text];
+    //             $labels[] =  $data['answers'][$i];
+    //         }
+    //     }
 
-                    $answers = [];
-                    foreach ($qa['answers'] as $answer) {
-                        $answers[] = $answer['text'];
-                    }
+    //     $dataset = new ArrayDataset($samples, $labels);
 
-                    // Create a data item with question, answers, and relevant context
-                    $dataset[] = [
-                        'id' => $id,
-                        'question' => $question,
-                        'answers' => $answers,
-                        'context' => $context
-                    ];
-                }
-            }
-        }
-        // Serialize the modified dataset array to JSON format
-        $serializedData = json_encode($dataset);
+    //     $split = new StratifiedRandomSplit($dataset, 0.2);
+    //     // $samples = $split->getTrainSamples();
 
-        // Define the file path where you want to store the JSON file
-        $filePath = storage_path('app/public/processed_dataset.json');
+    //     // Train the DecisionTree classifier
+    //     $classifier = new SVC(
+    //         probabilityEstimates: true,
+    //     );
+    //     $classifier->train($split->getTrainSamples(), $split->getTrainLabels());
 
-        // Save the serialized JSON data to a new JSON file
-        file_put_contents($filePath, $serializedData);
-    }
+    //     $modelManager = new ModelManager();
+    //     $modelManager->saveToFile($classifier, storage_path('app/public/question-answer-model'));
+    // }
 
-    public static function train()
-    {
-        // Load the processed dataset from the JSON file
-        $datasetFile = storage_path('app/public/processed_dataset.json');
-        $dataset = json_decode(file_get_contents($datasetFile), true);
-
-        $samples = [];
-
-        $dataset = array_slice($dataset, 0, 500);
-
-        foreach ($dataset as $data) {
-            for ($i = 0; $i < count($data['answers']); $i++) {
-                $text = $data['question'] . ' ' . $data['answers'][$i] . ' ' . $data['context'];
-                $samples[] = $text;
-                $labels[] =  $data['id'] . '_' . $i;
-            }
-        }
-
-        $labels = array_slice($labels, 0, 500);
-
-        // Preprocess text data and convert to feature vectors using TfIdfTransformer
-        $vectorizer = new TokenCountVectorizer(new WordTokenizer);
-
-        // Build the dictionary.
-        $vectorizer->fit($samples);
-
-        // Transform the provided text samples into a vectorized list.
-        $vectorizer->transform($samples);
-
-        $transformer = new TfIdfTransformer($samples);
-        $transformer->transform($samples);
-
-        // Create a dataset
-        $dataset = new ArrayDataset($samples, $labels);
-
-        // Split the dataset into training and testing sets
-        $split = new RandomSplit($dataset, 0.8);
-
-        // Train the DecisionTree classifier
-        $classifier = new SVC(
-            probabilityEstimates: true,
-        );
-        $classifier->train($split->getTrainSamples(), $split->getTrainLabels());
-
-
-        $userResponse = 'bruh';
-
-        // Predict the grade using the grading model
-        $grade = $classifier->predictProbability([$userResponse]);
-
-
-        $modelManager = new ModelManager();
-        $modelManager->saveToFile($classifier, storage_path('app/public/model'));
-    }
+    // public static function predict()
+    // {
+    //     $modelManager = new ModelManager();
+    //     $model = $modelManager->restoreFromFile(storage_path('app/public/question-answer-model'));
+    //     dd($model->predict(['What is the Grotto at Notre Dame?']));
+    // }
 }

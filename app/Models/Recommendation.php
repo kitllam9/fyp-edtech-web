@@ -12,6 +12,8 @@ class Recommendation extends Model
     /** @use HasFactory<\Database\Factories\RecommendationFactory> */
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable = [
         'product_id',
         'score',

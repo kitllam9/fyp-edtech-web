@@ -13,7 +13,12 @@ return new class extends Migration
     {
         Schema::create('quests', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->string('name', 100);
+            $table->string('description', 255);
+            $table->enum('type', ['notes', 'exercise', 'percentage', 'mixed'])->default('notes');
+            $table->integer('target');
+            $table->integer('multiple_percentage_amount')->nullable();
+            $table->integer('reward');
         });
     }
 

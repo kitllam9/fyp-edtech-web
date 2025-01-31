@@ -1,9 +1,11 @@
 <?php
 
+use App\DataProcessing;
 use App\Http\Controllers\BadgeController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestController;
+use App\Http\Controllers\QueueController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -35,8 +37,12 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::prefix('quest')->group(function () {
-        Route::get('/', [QuestController::class, 'index'])->name('quest');
+        Route::get('/', [QuestController::class, 'index'])->name('quests');
         Route::get('/create', [QuestController::class, 'create'])->name('quest.create');
+        Route::post('/store', [QuestController::class, 'store'])->name('quest.store');
+        Route::get('/edit/{quest}', [QuestController::class, 'edit'])->name('quest.edit');
+        Route::post('/update/{quest}', [QuestController::class, 'update'])->name('quest.update');
+        Route::delete('/delete/{quest}', [QuestController::class, 'destroy'])->name('quest.delete');
     });
 });
 
@@ -45,5 +51,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Route::any('/model-training', [DataProcessing::class, 'train']);
+// Route::any('/predict', [DataProcessing::class, 'predict']);
+
+Route::any('/cluster', [DataProcessing::class, 'userClustering']);
 
 require __DIR__ . '/auth.php';
