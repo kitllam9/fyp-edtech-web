@@ -41,5 +41,6 @@ Route::prefix('badge')->group(function () {
 Route::prefix('quest')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [QuestController::class, 'getQuestsWithStatus']);
+        Route::get('/complete/{id}', [QuestController::class, 'complete']);
     });
 });

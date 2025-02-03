@@ -2,9 +2,7 @@
 
 namespace App;
 
-use App\Models\Tag;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 use NlpTools\FeatureFactories\DataAsFeatures;
@@ -13,24 +11,19 @@ use NlpTools\Documents\TokensDocument;
 use NlpTools\Documents\TrainingSet;
 use NlpTools\Models\Lda;
 
-use Phpml\Clustering\KMeans;
-use Phpml\Clustering\DBSCAN;
-use Phpml\Math\Distance\Minkowski;
+// use Phpml\Clustering\KMeans;
 use Phpml\FeatureExtraction\TfIdfTransformer;
 use Phpml\FeatureExtraction\TokenCountVectorizer;
 use Phpml\Tokenization\WordTokenizer;
 
-use Phpml\Classification\SVC;
-use Phpml\Dataset\ArrayDataset;
-use Phpml\CrossValidation\StratifiedRandomSplit;
-use Phpml\CrossValidation\RandomSplit;
-use Phpml\Regression\LeastSquares;
-use Phpml\SupportVectorMachine\Kernel;
-use Phpml\ModelManager;
+use Rubix\ML\Datasets\Labeled;
+use Rubix\ML\Clusterers\KMeans;
+use Rubix\ML\Kernels\Distance\Cosine;
+use Rubix\ML\Clusterers\Seeders\PlusPlus;
+use Rubix\ML\CrossValidation\Reports\ContingencyTable;
 
 use StopWords\StopWords;
 
-use Pdo;
 
 class DataProcessing
 {
@@ -114,58 +107,49 @@ class DataProcessing
         $tfidf = array_values($samples);
         $transformer = new TfIdfTransformer($tfidf);
         $transformer->transform($tfidf);
+        $dataset = new Labeled($tfidf, $keys);
 
-        $samples = array_combine($keys, $tfidf);
-        // Clustering according to the vectorized string
-        $kmeans = new KMeans(2);
-        $clusters = $kmeans->cluster($samples);
 
-        // Assign `group_id` from the result of clustering to the users
-        foreach ($clusters as $id => $cluster) {
-            foreach ($cluster as $userId => $data) {
-                User::find($userId)->update(['group_id' => $id]);
+        $maxClusters = 10;
+        $prevWcss = null;
+        $wcssChanges = [];
+
+        for ($k = 1; $k <= $maxClusters; $k++) {
+            $estimator = new KMeans($k, kernel: new Cosine(), seeder: new PlusPlus());
+            $estimator->train($dataset);
+
+            $currentWcss = 0;
+
+            foreach ($estimator->centroids() as $clusterId => $clusterData) {
+                // Normalize centroid data
+                $centroid = array_sum($clusterData) / count($clusterData);
+
+                foreach ($clusterData as $sample) {
+                    $currentWcss += pow($sample - $centroid, 2);
+                }
+            }
+
+            if ($prevWcss != null) {
+                $wcssChanges[] = $currentWcss - $prevWcss;
+            }
+
+            $prevWcss = $currentWcss;
+
+            if (count($wcssChanges) > 1 && end($wcssChanges) < array_slice($wcssChanges, -2, 1)) {
+                $report = new ContingencyTable();
+                $result = $report->generate($estimator->predict($dataset), $keys);
+
+                // Assign `group_id` from the result of clustering to the users
+                foreach ($result as $id => $clusterData) {
+                    foreach ($clusterData as $userId => $inCluster) {
+                        if ($inCluster == 1) {
+                            User::find($userId)->update(['group_id' => $id]);
+                        }
+                    }
+                }
+
+                break;
             }
         }
     }
-
-    // public static function train()
-    // {
-    //     // Load the processed dataset from the JSON file
-    //     $datasetFile = storage_path('app/public/processed_dataset.json');
-    //     $rawDataset = json_decode(file_get_contents($datasetFile), true);
-
-    //     $samples = [];
-
-    //     shuffle($rawDataset);  // reorder the array. 
-    //     $random = array_slice($rawDataset, 0, 2000); // cut off after $count elements.
-
-    //     foreach ($random as $data) {
-    //         for ($i = 0; $i < count($data['answers']); $i++) {
-    //             $text = $data['question'];
-    //             $samples[] = [$text];
-    //             $labels[] =  $data['answers'][$i];
-    //         }
-    //     }
-
-    //     $dataset = new ArrayDataset($samples, $labels);
-
-    //     $split = new StratifiedRandomSplit($dataset, 0.2);
-    //     // $samples = $split->getTrainSamples();
-
-    //     // Train the DecisionTree classifier
-    //     $classifier = new SVC(
-    //         probabilityEstimates: true,
-    //     );
-    //     $classifier->train($split->getTrainSamples(), $split->getTrainLabels());
-
-    //     $modelManager = new ModelManager();
-    //     $modelManager->saveToFile($classifier, storage_path('app/public/question-answer-model'));
-    // }
-
-    // public static function predict()
-    // {
-    //     $modelManager = new ModelManager();
-    //     $model = $modelManager->restoreFromFile(storage_path('app/public/question-answer-model'));
-    //     dd($model->predict(['What is the Grotto at Notre Dame?']));
-    // }
 }

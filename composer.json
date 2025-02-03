@@ -15,6 +15,7 @@
         "laravel/tinker": "^2.9",
         "nlp-tools/nlp-tools": "1.0.*@dev",
         "php-ai/php-ml": "^0.10.0",
+        "rubix/ml": "^2.5",
         "spatie/laravel-pdf": "^1.5",
         "tigo/recommendation": "^0.0.2",
         "wnx/sidecar-browsershot": "^2.5"

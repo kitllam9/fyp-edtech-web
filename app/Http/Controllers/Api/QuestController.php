@@ -10,12 +10,12 @@ use App\Models\History;
 use App\Models\Quest;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 
 class QuestController extends Controller
 {
     public function getQuestsWithStatus(Request $request)
     {
-        // Update user points
         $user = $request->user();
 
         $completedContentIds = History::where('user_id', $user->id)
@@ -29,9 +29,12 @@ class QuestController extends Controller
             ->whereDate('created_at', Carbon::today())
             ->pluck('score');
 
-        $quests = Quest::all()->map(function ($q) {
+        $quests = Quest::all()->map(function ($q) use ($user) {
             $q->progress = 0;
             $q->completed = false;
+            if (!empty($user->finished_quests[$q->id])) {
+                $q->claimed = Carbon::parse($user->finished_quests[$q->id])->isToday();
+            }
             return $q;
         });
 
@@ -47,6 +50,13 @@ class QuestController extends Controller
             if ($quest->type == 'exercise') {
                 $completedExerciseCount = Content::where('type', 'exercise')
                     ->whereIn('id', $completedContentIds)
+                    ->count();
+                $quest->progress = $completedExerciseCount;
+                $quest->completed = $completedExerciseCount >= $quest->target;
+                continue;
+            }
+            if ($quest->type == 'mixed') {
+                $completedExerciseCount = Content::whereIn('id', $completedContentIds)
                     ->count();
                 $quest->progress = $completedExerciseCount;
                 $quest->completed = $completedExerciseCount >= $quest->target;
@@ -69,5 +79,19 @@ class QuestController extends Controller
         return $this->success(data: [
             'quests' => $quests,
         ]);
+    }
+
+    public function complete(Request $request, int $id)
+    {
+        $user = $request->user();
+
+        $records = $user->finished_quests ?? [];
+        $records[$id] = Carbon::now();
+
+        $user->update([
+            'finished_quests' => $records,
+        ]);
+
+        return $this->success(message: 'Completed');
     }
 }

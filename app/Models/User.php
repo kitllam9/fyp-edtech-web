@@ -27,6 +27,7 @@ class User extends Authenticatable
         'password',
         'interests',
         'badges',
+        'finished_quests',
         'points',
         'group_id'
     ];
@@ -53,6 +54,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'interests' => 'array',
             'badges' => 'array',
+            'finished_quests' => 'array',
         ];
     }
 
