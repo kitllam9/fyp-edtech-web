@@ -11,6 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
+
+        /**
+         * Laravel default `users` table is reserved for the web end.
+         * The project has renamed it to `admins`, and used `users` for the API.
+         * This is to drop the duplicated table before creating the actual one. 
+         */
+        Schema::dropIfExists('users');
+
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('username');
@@ -21,7 +29,7 @@ return new class extends Migration
             $table->unsignedInteger('points')->default(0);
             $table->longText('badges')->nullable();
             $table->longText('interest')->nullable();
-            $table->unsignedBigInteger('group_id');
+            $table->unsignedBigInteger('group_id')->nullable();
             $table->timestamps();
         });
     }
