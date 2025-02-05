@@ -28,7 +28,7 @@ return new class extends Migration
             $table->rememberToken();
             $table->unsignedInteger('points')->default(0);
             $table->longText('badges')->nullable();
-            $table->longText('interest')->nullable();
+            $table->longText('interests')->nullable();
             $table->unsignedBigInteger('group_id')->nullable();
             $table->timestamps();
         });

@@ -121,10 +121,6 @@ class ContentController extends Controller
             'interests' => $interests,
         ]);
 
-        /**
-         * TEMPORARY
-         * Regression for recommendation --> Too complicated with too many parameters
-         */
         History::create([
             'content_id' => $id,
             'user_id' => $user->id,

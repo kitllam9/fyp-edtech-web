@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('pdf_url', 100)->nullable();
             $table->longText('exercise_details')->nullable();
             $table->longText('tags')->nullable();
-            $table->enum('difficulty', ['easy', 'medium', 'advanced'])->default('easy');
             $table->integer('points')->default(0);
             $table->timestamps();
         });

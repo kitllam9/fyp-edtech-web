@@ -36,10 +36,6 @@ class ContentController extends Controller
                 'notes' => 'Notes',
                 'exercise' => 'Exercise'
             ],
-            "question_types" => [
-                'short' => 'Short Question',
-                'mc' => 'Multiple Choice'
-            ],
             'tags' => json_encode(Tag::pluck('name')),
         ]);
     }
@@ -98,25 +94,19 @@ class ContentController extends Controller
             // Re-index questions to avoid missing indices
             $reindexedPayload = [];
             foreach ($questionList as $index => $question) {
-                $type = $request->input('question_type')[$index];
-
                 $reindexedPayload[$index] = [
                     'question' => $question,
-                    'type' => $type,
-                    'answer' => $answerList[$index],
+                    // 'answer' => $answerList[$index],
                 ];
 
-                // If it's a multiple choice question, add the choices
-                if ($type == 'mc') {
-                    $mcInput = $mcList[$index];
-                    $reindexedPayload[$index]['mc'] = [
-                        $mcInput[0],
-                        $mcInput[1],
-                        $mcInput[2],
-                        $mcInput[3]
-                    ];
-                    $reindexedPayload[$index]['answer'] = $request->input('answer_')[$index];
-                }
+                $mcInput = $mcList[$index];
+                $reindexedPayload[$index]['mc'] = [
+                    $mcInput[0],
+                    $mcInput[1],
+                    $mcInput[2],
+                    $mcInput[3]
+                ];
+                $reindexedPayload[$index]['answer'] = $request->input('answer_')[$index];
             }
 
             // Loop through the re-indexed payload
@@ -193,7 +183,6 @@ class ContentController extends Controller
             'title' => 'required|string|max:100',
             'description' => 'required|string|max:255',
             'type' => 'required|string|in:notes,exercise',
-            'difficulty' => 'required|string|in:easy,medium,advanced',
         ]);
 
         $tags = [];
@@ -245,25 +234,20 @@ class ContentController extends Controller
             // Re-index questions to avoid missing indices
             $reindexedPayload = [];
             foreach ($questionList as $index => $question) {
-                $type = $request->input('question_type')[$index];
 
                 $reindexedPayload[$index] = [
                     'question' => $question,
-                    'type' => $type,
-                    'answer' => $answerList[$index],
+                    // 'answer' => $answerList[$index],
                 ];
 
-                // If it's a multiple choice question, add the choices
-                if ($type == 'mc') {
-                    $mcInput = $mcList[$index];
-                    $reindexedPayload[$index]['mc'] = [
-                        $mcInput[0],
-                        $mcInput[1],
-                        $mcInput[2],
-                        $mcInput[3]
-                    ];
-                    $reindexedPayload[$index]['answer'] = $request->input('answer_')[$index];
-                }
+                $mcInput = $mcList[$index];
+                $reindexedPayload[$index]['mc'] = [
+                    $mcInput[0],
+                    $mcInput[1],
+                    $mcInput[2],
+                    $mcInput[3]
+                ];
+                $reindexedPayload[$index]['answer'] = $request->input('answer_')[$index];
             }
 
             // Loop through the re-indexed payload
@@ -289,7 +273,6 @@ class ContentController extends Controller
             'exercise_details' => $exerciseDetailsJson,
             'tags' => json_encode($mergedTagArray),
             'points' => $request->input('points'),
-            'difficulty' => $request->input('difficulty'),
         ]);
 
         Tag::insertOrIgnore(

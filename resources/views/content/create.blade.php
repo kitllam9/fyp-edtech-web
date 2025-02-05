@@ -62,11 +62,6 @@
                                     </th>
                                     <th class="px-4 py-3 border border-gray-300 dark:border-gray-700">
                                         <x-input-label>
-                                            {{ __('Type') }}
-                                        </x-input-label>
-                                    </th>
-                                    <th class="px-4 py-3 border border-gray-300 dark:border-gray-700">
-                                        <x-input-label>
                                             {{ __('Answer') }}
                                         </x-input-label>
                                     </th>
@@ -82,13 +77,7 @@
                                     <td class="px-4 py-3 border border-gray-300 dark:border-gray-700">
                                         <x-textarea name="question[0]"></x-textarea>
                                     </td>
-                                    <td class="px-4 py-3 border border-gray-300 dark:border-gray-700">
-                                        <x-select class="question-type" name="question_type[0]" :options="$question_types" />
-                                    </td>
-                                    <td class="short-answer px-4 py-3 border border-gray-300 dark:border-gray-700">
-                                        <x-textarea name="answer[0]"></x-textarea>
-                                    </td>
-                                    <td class="mc-table px-4 py-3 hidden border border-gray-300 dark:border-gray-700">
+                                    <td class="mc-table px-4 py-3 border border-gray-300 dark:border-gray-700">
                                         <table class="table-auto w-full bg-white dark:bg-gray-900">
                                             <tr>
                                                 <td class="px-4 py-1">
@@ -506,13 +495,7 @@
                     '<td class="px-4 py-2 border border-gray-300 dark:border-gray-700">' +
                     `<x-textarea name="question[` + rowIndex + `]"></x-textarea>` +
                     '</td>' +
-                    '<td class="px-4 py-2 border border-gray-300 dark:border-gray-700">' +
-                    `<x-select class="question-type" name="question_type[` + rowIndex + `]" :options="$question_types" />` +
-                    '</td>' +
-                    '<td class="short-answer px-4 py-2 border border-gray-300 dark:border-gray-700">' +
-                    `<x-textarea name="answer[` + rowIndex + `]"></x-textarea>` +
-                    '</td>' +
-                    '<td class="mc-table px-4 py-2 hidden border border-gray-300 dark:border-gray-700">' +
+                    '<td class="mc-table px-4 py-2 border border-gray-300 dark:border-gray-700">' +
                     '<table class="table-auto w-full bg-white dark:bg-gray-900">' +
                     '<tr>' +
                     '<td class="px-4 py-1">' +

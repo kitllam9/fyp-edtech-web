@@ -74,12 +74,6 @@
                         </x-input-label>
                         <x-text-input id="points" class="block mt-2 w-full" type="number" name="points" value="{{ $content->points }}" required />
                     </div>
-                    <div class="mb-4">
-                        <x-input-label>
-                            {{ __('Difficulty') }}
-                        </x-input-label>
-                        <x-select id="difficulty" name="difficulty" class="mt-2" :options="$difficulty_types" :defaultValue="$content->difficulty" />
-                    </div>
 
                     <div class="mb-4 text-editor-section">
                         <x-text-editor id="content" />
@@ -122,19 +116,7 @@
                                         @endphp
                                         <x-textarea name="question[{{ $i }}]" :defaultValue="$question_text"></x-textarea>
                                     </td>
-                                    <td class="px-4 py-3 border border-gray-300 dark:border-gray-700">
-                                        @php
-                                        $default_type = $q->type;
-                                        @endphp
-                                        <x-select class="question-type" name="question_type[{{ $i }}]" :options="$question_types" :defaultValue="$default_type" />
-                                    </td>
-                                    <td class="short-answer px-4 py-3 border border-gray-300 dark:border-gray-700">
-                                        @php
-                                        $answer_text = $q->answer;
-                                        @endphp
-                                        <x-textarea name="answer[{{ $i }}]" :defaultValue="$answer_text"></x-textarea>
-                                    </td>
-                                    <td class="mc-table px-4 py-3 hidden border border-gray-300 dark:border-gray-700">
+                                    <td class="mc-table px-4 py-3 border border-gray-300 dark:border-gray-700">
                                         <table class="table-auto w-full bg-white dark:bg-gray-900">
                                             <tr>
                                                 <td class="px-4 py-1">
@@ -142,9 +124,7 @@
                                                 </td>
                                                 <td class="px-4 py-1">
                                                     @php
-                                                    if ($q->type == 'mc') {
                                                     $option_1 = html_entity_decode($q->mc[0]);
-                                                    }
                                                     @endphp
                                                     <x-textarea name="mc[{{ $i }}][0]" :defaultValue="$option_1"></x-textarea>
                                                 </td>
@@ -158,9 +138,7 @@
                                                 </td>
                                                 <td class="px-4 py-1">
                                                     @php
-                                                    if ($q->type == 'mc') {
                                                     $option_2 = html_entity_decode($q->mc[1]);
-                                                    }
                                                     @endphp
                                                     <x-textarea name="mc[{{ $i }}][1]" :defaultValue="$option_2"></x-textarea>
                                                 </td>
@@ -174,9 +152,7 @@
                                                 </td>
                                                 <td class="px-4 py-1">
                                                     @php
-                                                    if ($q->type == 'mc') {
                                                     $option_3 = html_entity_decode($q->mc[2]);
-                                                    }
                                                     @endphp
                                                     <x-textarea name="mc[{{ $i }}][2]" :defaultValue="$option_3"></x-textarea>
                                                 </td>
@@ -190,9 +166,7 @@
                                                 </td>
                                                 <td class="px-4 py-1">
                                                     @php
-                                                    if ($q->type == 'mc') {
                                                     $option_4 = html_entity_decode($q->mc[3]);
-                                                    }
                                                     @endphp
                                                     <x-textarea name="mc[{{ $i }}][3]" :defaultValue="$option_4"></x-textarea>
                                                 </td>
@@ -588,13 +562,7 @@
                     '<td class="px-4 py-2 border border-gray-300 dark:border-gray-700">' +
                     `<x-textarea name="question[` + rowIndex + `]"></x-textarea>` +
                     '</td>' +
-                    '<td class="px-4 py-2 border border-gray-300 dark:border-gray-700">' +
-                    `<x-select class="question-type" name="question_type[` + rowIndex + `]" :options="$question_types" />` +
-                    '</td>' +
-                    '<td class="short-answer px-4 py-2 border border-gray-300 dark:border-gray-700">' +
-                    `<x-textarea name="answer[` + rowIndex + `]"></x-textarea>` +
-                    '</td>' +
-                    '<td class="mc-table px-4 py-2 hidden border border-gray-300 dark:border-gray-700">' +
+                    '<td class="mc-table px-4 py-2 border border-gray-300 dark:border-gray-700">' +
                     '<table class="table-auto w-full bg-white dark:bg-gray-900">' +
                     '<tr>' +
                     '<td class="px-4 py-1">' +
