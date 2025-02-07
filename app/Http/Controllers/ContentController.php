@@ -131,6 +131,7 @@ class ContentController extends Controller
             'pdf_url' => $pdfUrl,
             'exercise_details' => $exerciseDetailsJson,
             'tags' => json_encode($mergedTagArray),
+            'points' => $request->input('points'),
         ]);
 
         Tag::insertOrIgnore(
@@ -328,7 +329,7 @@ class ContentController extends Controller
 
         // Filter words that appeared more than once
         return array_keys(array_filter($wordsCount, function ($count) use ($it) {
-            return $count > ($it / 3);
+            return $count > 3;
         }));
     }
 

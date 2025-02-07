@@ -39,7 +39,7 @@ class ContentController extends Controller
             });
 
             return $this->success(
-                data: $results->latest('updated_at')->paginate(10),
+                data: $results->latest('updated_at')->paginate(15),
             );
         }
 
@@ -79,7 +79,7 @@ class ContentController extends Controller
                 $merged = $latestUnviewed->merge($recommendations);
                 $sorted = $merged->sortByDesc('recommendation_score');
 
-                $perPage = 10;
+                $perPage = 15;
                 $page = LengthAwarePaginator::resolveCurrentPage('page');
 
                 $paginatedData = new LengthAwarePaginator($sorted->forPage($page, $perPage)->values(), $sorted->count(), $perPage, $page, [
@@ -94,7 +94,7 @@ class ContentController extends Controller
         }
 
         return $this->success(
-            data: $default->latest('updated_at')->paginate(10),
+            data: $default->latest('updated_at')->paginate(15),
         );
     }
 

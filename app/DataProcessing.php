@@ -15,6 +15,7 @@ use NlpTools\Models\Lda;
 use Phpml\FeatureExtraction\TfIdfTransformer;
 use Phpml\FeatureExtraction\TokenCountVectorizer;
 use Phpml\Tokenization\WordTokenizer;
+use Phpml\Math\Distance\Euclidean;
 
 use Rubix\ML\Datasets\Labeled;
 use Rubix\ML\Clusterers\KMeans;
@@ -97,58 +98,72 @@ class DataProcessing
         $samples = array_combine($keys, $values);
 
         $vectorizer = new TokenCountVectorizer(new WordTokenizer());
-
-        // Build the dictionary.
         $vectorizer->fit($samples);
-
-        // Transform the provided text samples into a vectorized list.
         $vectorizer->transform($samples);
 
         $tfidf = array_values($samples);
         $transformer = new TfIdfTransformer($tfidf);
         $transformer->transform($tfidf);
+
         $dataset = new Labeled($tfidf, $keys);
 
-
         $maxClusters = 10;
+
         $prevWcss = null;
         $wcssChanges = [];
+        $wcss = [];
+
+        $finalResult = [];
 
         for ($k = 1; $k <= $maxClusters; $k++) {
             $estimator = new KMeans($k, kernel: new Cosine(), seeder: new PlusPlus());
             $estimator->train($dataset);
 
+            $report = new ContingencyTable();
+            $result = $report->generate($estimator->predict($dataset), $keys)->toArray();
+
+            foreach ($result as $id => $clusterData) {
+                $filtered = array_map(function ($subarray) {
+                    return array_filter($subarray, function ($value) {
+                        return $value !== 0;
+                    });
+                }, $result);
+
+                $result = $filtered;
+            }
+
             $currentWcss = 0;
 
             foreach ($estimator->centroids() as $clusterId => $clusterData) {
-                // Normalize centroid data
-                $centroid = array_sum($clusterData) / count($clusterData);
+                $_data = array_intersect_key(array_combine($dataset->labels(), $dataset->samples()), $result[$clusterId]);
 
-                foreach ($clusterData as $sample) {
-                    $currentWcss += pow($sample - $centroid, 2);
+                foreach ($_data as $key => $value) {
+                    $euclidean = new Euclidean();
+                    $currentWcss += pow($euclidean->distance($value, $clusterData), 2);
                 }
             }
 
+            $wcss[] = $currentWcss;
+
             if ($prevWcss != null) {
-                $wcssChanges[] = $currentWcss - $prevWcss;
+                $wcssChanges[] = abs(($currentWcss - $prevWcss) / $prevWcss);
             }
 
             $prevWcss = $currentWcss;
 
-            if (count($wcssChanges) > 1 && end($wcssChanges) < array_slice($wcssChanges, -2, 1)) {
-                $report = new ContingencyTable();
-                $result = $report->generate($estimator->predict($dataset), $keys);
-
-                // Assign `group_id` from the result of clustering to the users
-                foreach ($result as $id => $clusterData) {
-                    foreach ($clusterData as $userId => $inCluster) {
-                        if ($inCluster == 1) {
-                            User::find($userId)->update(['group_id' => $id]);
-                        }
-                    }
-                }
-
+            if ((count($wcssChanges) > 0 && end($wcssChanges) < 0.05) || end($wcss) == 0) {
                 break;
+            }
+
+            $finalResult = $result;
+        }
+
+        // Assign `group_id` from the result of clustering to the users
+        foreach ($finalResult as $id => $clusterData) {
+            foreach ($clusterData as $userId => $inCluster) {
+                if ($inCluster == 1) {
+                    User::find($userId)->update(['group_id' => $id]);
+                }
             }
         }
     }
