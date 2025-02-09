@@ -56,5 +56,7 @@ Route::middleware('auth')->group(function () {
 // Route::any('/predict', [DataProcessing::class, 'predict']);
 
 Route::any('/cluster', [DataProcessing::class, 'userClustering']);
+Route::any('/test/tfidf', [DataProcessing::class, 'tfidfTest']);
+Route::any('/test/lda', [DataProcessing::class, 'ldaTest']);
 
 require __DIR__ . '/auth.php';
