@@ -50,7 +50,7 @@ class UserController extends Controller
         }
 
         if ($request->input('interests')) {
-            $newInterests  = json_decode($request->input('interests'));
+            $newInterests = json_decode($request->input('interests'));
             $updates['interests'] = $newInterests;
 
             $removed = array_diff($user->interests, $newInterests);

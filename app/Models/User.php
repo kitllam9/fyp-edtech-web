@@ -25,10 +25,10 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
+        'points',
         'interests',
         'badges',
         'finished_quests',
-        'points',
         'group_id'
     ];
 

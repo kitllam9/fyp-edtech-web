@@ -182,27 +182,38 @@ class DataProcessing
         $faker = \Faker\Factory::create();
 
         // Number of fake records to generate
-        $numRecords = 1000;
+        $numRecords = [1, 250, 500, 750, 1000];
+        $executionTime = [];
 
-        $samples = [];
-        for ($i = 0; $i < $numRecords; $i++) {
-            $samples[] = $faker->text();
+        foreach ($numRecords as $num) {
+            $samples = [];
+            for ($i = 0; $i < $num; $i++) {
+                $samples[] = $faker->text();
+            }
+
+            $startTime = microtime(true);
+
+            $vectorizer = new TokenCountVectorizer(new WordTokenizer());
+            $vectorizer->fit($samples);
+            $vectorizer->transform($samples);
+
+            $tfidf = array_values($samples);
+            $transformer = new TfIdfTransformer($tfidf);
+            $transformer->transform($tfidf);
+
+            $endTime = microtime(true);
+            $executionTime[] = $endTime - $startTime;
         }
 
-        $startTime = microtime(true);
 
-        $vectorizer = new TokenCountVectorizer(new WordTokenizer());
-        $vectorizer->fit($samples);
-        $vectorizer->transform($samples);
 
-        $tfidf = array_values($samples);
-        $transformer = new TfIdfTransformer($tfidf);
-        $transformer->transform($tfidf);
+        dd(array_combine($numRecords, $executionTime));
 
-        $endTime = microtime(true);
-        $executionTime = $endTime - $startTime;
 
-        dd(round($executionTime, 4));
+        return view('test.test', [
+            'inputData' => json_encode($numRecords),
+            'timeData' => json_encode($executionTime),
+        ]);
     }
 
     public static function ldaTest()

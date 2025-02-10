@@ -30,6 +30,7 @@ return new class extends Migration
             $table->longText('badges')->nullable();
             $table->longText('interests')->nullable();
             $table->unsignedBigInteger('group_id')->nullable();
+            $table->longText('finished_quests')->nullable();
             $table->timestamps();
         });
     }
