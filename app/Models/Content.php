@@ -4,9 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Notifications\Notifiable;
 
 class Content extends Model
 {
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory, Notifiable;
+
     protected $table = 'content';
     protected $fillable = [
         'title',
@@ -15,8 +20,7 @@ class Content extends Model
         'pdf_url',
         'exercise_details',
         'tags',
-        'points',
-        'difficulty',
+        'points'
     ];
 
     protected $appends = [

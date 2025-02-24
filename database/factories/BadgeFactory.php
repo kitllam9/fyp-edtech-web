@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enum\BadgeType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,10 @@ class BadgeFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => fake()->realText(100),
+            'description' => fake()->realText(255),
+            'type' => fake()->randomElement(BadgeType::cases()),
+            'target' => fake()->randomNumber(4),
         ];
     }
 }

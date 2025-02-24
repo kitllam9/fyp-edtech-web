@@ -66,7 +66,7 @@ class ContentController extends Controller
             $string = Str::replace('gtgtgt', '', $string);
             $tags = $this->iteratedLda($string, 10);
 
-            $pdfId = DB::select("SHOW TABLE STATUS LIKE 'content'")[0]->Auto_increment;
+            $pdfId = $request->input('test') ? uniqid() : DB::select("SHOW TABLE STATUS LIKE 'content'")[0]->Auto_increment;
             $dir = 'app/public/pdf/' . $pdfId . '/';
             File::makeDirectory(storage_path('app/public/pdf/' . $pdfId));
 
@@ -140,7 +140,10 @@ class ContentController extends Controller
             })->all()
         );
 
-        return redirect()->route('content');
+        return redirect()
+            ->route('content')
+            // This is purely for testing purposes
+            ->with('pdf_path', '\pdf\\' . $pdfId . '\\' . basename($pdfFilePath));
     }
 
 

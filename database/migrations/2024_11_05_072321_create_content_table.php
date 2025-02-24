@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('title', 100);
             $table->string('description', 255);
             $table->enum('type', ['notes', 'exercise'])->default('notes');
-            $table->string('pdf_url', 100)->nullable();
+            $table->string('pdf_url', 511)->nullable();
             $table->longText('exercise_details')->nullable();
             $table->longText('tags')->nullable();
             $table->integer('points')->default(0);

@@ -4,9 +4,6 @@ namespace App;
 
 use App\Models\User;
 use Illuminate\Support\Str;
-use League\CommonMark\Node\Block\Document;
-use NlpTools\Documents\TrainingDocument;
-use NlpTools\Similarity\CosineSimilarity;
 use NlpTools\FeatureFactories\DataAsFeatures;
 use NlpTools\Tokenizers\WhitespaceTokenizer;
 use NlpTools\Documents\TokensDocument;
@@ -123,6 +120,7 @@ class DataProcessing
             $report = new ContingencyTable();
             $result = $report->generate($estimator->predict($dataset), $keys)->toArray();
 
+
             foreach ($result as $id => $clusterData) {
                 $filtered = array_map(function ($subarray) {
                     return array_filter($subarray, function ($value) {
@@ -214,102 +212,6 @@ class DataProcessing
             'inputData' => json_encode($numRecords),
             'timeData' => json_encode($executionTime),
         ]);
-    }
-
-    public static function ldaTest()
-    {
-        $faker = \Faker\Factory::create();
-
-        $tok = new WhitespaceTokenizer();
-
-        $d = new TokensDocument(
-            $tok->tokenize(
-                $faker->text(1000),
-            )
-        );
-
-        $_train = new TrainingSet();
-        $_train->addDocument(
-            '',
-            $d // the class is not used by the lda model
-
-        );
-
-        // Assuming you have already defined $train as your existing TrainingSet
-        $documents = $d->getDocumentData(); // Get all documents from the existing training set
-
-        // Shuffle the documents to randomize the order
-        shuffle($documents);
-
-        // Determine the size of the held-out set (e.g., 20% of the data)
-        $heldOutSize = 0.2 * count($documents);
-
-        // Extract the held-out set from the existing training set
-        $heldOutDocuments = array_slice($documents, 0, $heldOutSize);
-
-        // Create a new TrainingSet for the held-out documents
-        $heldOutSet = new TrainingSet();
-        foreach ($heldOutDocuments as $doc) {
-            $heldOutSet->addDocument('', new TokensDocument(
-                $tok->tokenize(
-                    $doc,
-                )
-            ));
-            unset($documents[$doc]);
-        }
-
-        // Remove the held-out documents from the original training set
-        foreach ($documents as $doc) {
-            $train = new TrainingSet();
-            $train->addDocument(
-                '', // the class is not used by the lda model
-                new TokensDocument(
-                    $tok->tokenize(
-                        $doc,
-                    )
-                )
-            );
-        }
-
-        $lda = new Lda(
-            new DataAsFeatures(), // a feature factory to transform the document data
-            5, // the number of topics we want
-            1.2, // the dirichlet prior assumed for the per document topic distribution
-            1.2  // the dirichlet prior assumed for the per word topic distribution
-        );
-
-        // Define the number of folds for cross-validation
-        $numFolds = 5;
-        $perFoldResults = [];
-
-        // Perform K-fold cross-validation
-        for ($fold = 0; $fold < $numFolds; $fold++) {
-            // Split your dataset into training and validation sets for this fold
-
-            // Train the LDA model on the training set
-            $lda->train($train, 100); // You may need to adjust the number of iterations
-
-            $evaluationResult = DataProcessing::calculatePerplexity($lda, $heldOutSet);
-
-            // Store the evaluation results for this fold
-            $perFoldResults[] = $evaluationResult;
-        }
-        dd($perFoldResults);
-    }
-
-    private static function calculatePerplexity($ldaModel, $heldOutSet)
-    {
-        $logLikelihood = 0.0;
-        $numTokens = 0;
-
-        foreach ($heldOutSet as $document) {
-            $logLikelihood += $ldaModel->getLogLikelihood($document);
-            $numTokens += count($document->getDocumentData());
-        }
-
-        dd($logLikelihood, $numTokens);
-        $perplexity = exp(-$logLikelihood / $numTokens);
-        return $perplexity;
     }
 
     public static function cosineDistance(&$A, &$B)
