@@ -103,12 +103,12 @@ class DataProcessing
         $transformer->transform($tfidf);
 
         $dataset = new Labeled($tfidf, $keys);
+        $arrDataset = array_combine($dataset->labels(), $dataset->samples());
 
         $maxClusters = 10;
 
         $prevWcss = null;
         $wcssChanges = [];
-        $wcss = [];
 
         $finalResult = [];
         $finalK = 0;
@@ -119,7 +119,6 @@ class DataProcessing
 
             $report = new ContingencyTable();
             $result = $report->generate($estimator->predict($dataset), $keys)->toArray();
-
 
             foreach ($result as $id => $clusterData) {
                 $filtered = array_map(function ($subarray) {
@@ -136,8 +135,7 @@ class DataProcessing
             $currentWcss = 0;
 
             foreach ($estimator->centroids() as $clusterId => $clusterData) {
-                $_data = array_intersect_key(array_combine($dataset->labels(), $dataset->samples()), $result[$clusterId]);
-
+                $_data = array_intersect_key($arrDataset, $result[$clusterId]);
                 foreach ($_data as $key => $value) {
                     $currentWcss += pow(DataProcessing::cosineDistance($value, $clusterData), 2);
                 }
@@ -165,15 +163,22 @@ class DataProcessing
             }
         }
 
+        $labels = [];
+
         // Assign `group_id` from the result of clustering to the users
         foreach ($finalResult[$finalK] as $id => $clusterData) {
             foreach ($clusterData as $userId => $inCluster) {
                 if ($inCluster == 1) {
-                    User::find($userId)->update(['group_id' => $id]);
+                    $labels[$userId] = $id;
+                    // User::find($userId)->update(['group_id' => $id]);
                 }
             }
         }
+
+        ksort($labels);
+        dd(calculateSilhouetteScore($arrDataset, $labels));
     }
+
 
     public static function tfidfTest()
     {

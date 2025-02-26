@@ -37,12 +37,57 @@ test('users can login', function () {
         ]);
 });
 
-test('users cannot login with invalid password', function () {
+test('users cannot register with duplicate username or email', function () {
+    $user = User::factory()->create();
+
+    $response = $this->post('/api/user/register', [
+        'username' => $user->username,
+        'password' => 'password',
+        'email' => 'test@test.com',
+    ]);
+
+    $response->assertStatus(400)
+        ->assertJsonStructure([
+            'errors'
+        ])
+        ->assertJsonFragment([
+            'success' => false,
+        ]);
+
+    $response = $this->post('/api/user/register', [
+        'username' => 'test',
+        'password' => 'password',
+        'email' => $user->email,
+    ]);
+
+    $response->assertStatus(400)
+        ->assertJsonStructure([
+            'errors'
+        ])
+        ->assertJsonFragment([
+            'success' => false,
+        ]);
+});
+
+test('users cannot login with invalid credentials', function () {
     $user = User::factory()->create();
 
     $response = $this->post('/api/user/login', [
         'username' => $user->email,
         'password' => 'wrong-password',
+    ]);
+
+    $response->assertStatus(401)
+        ->assertJsonStructure([
+            'errors'
+        ])
+        ->assertJsonFragment([
+            'success' => false,
+        ]);
+
+    $response = $this->post('/api/user/login', [
+        'username' => 'wrong-email',
+        'password' => 'password',
     ]);
 
     $response->assertStatus(401)

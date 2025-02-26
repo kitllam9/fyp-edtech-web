@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Tag;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\DB;
 
@@ -29,7 +30,7 @@ class ContentFactory extends Factory
 
         $tags = [];
         $amount = rand(1, 10);
-        $tags = fake()->words($amount);
+        $tags = fake()->randomElements(Tag::pluck('name'), 3);
 
         $pdfId = DB::select("SHOW TABLE STATUS LIKE 'content'")[0]->Auto_increment;
 
