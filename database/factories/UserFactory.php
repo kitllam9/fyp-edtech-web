@@ -24,7 +24,7 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'password' => Hash::make('password'), // password
             'remember_token' => Str::random(10),
-            'interests' => json_encode(fake()->randomElements(Tag::pluck('name'), 5)),
+            // 'interests' => count(Tag::pluck('name')) == 0 ? null : fake()->randomElements(Tag::pluck('name'), 5),
         ];
     }
 }

@@ -23,7 +23,7 @@ function calculateMeanSquaredError($actual, $predicted)
     return $sum / $n;
 }
 
-function calculateSilhouetteScore($data, $labels)
+function calculateSilhouetteScore($data, $labelList)
 {
     $n = count($data);
     $silhouetteScores = [];
@@ -31,23 +31,28 @@ function calculateSilhouetteScore($data, $labels)
     for ($i = 1; $i <= $n; $i++) {
         $a = 0;
         $b = INF;
-        $label = $labels[$i];
+        $label = $labelList[$i];
+
+        $in_cluster_distances = [];
 
         // Calculate the average distance of the point to all other points in the same cluster
-        foreach ($labels as $j => $otherLabel) {
-            if ($otherLabel === $label) {
-                $a += DataProcessing::cosineDistance($data[$i], $data[$j]);
+        foreach ($labelList as $j => $otherLabel) {
+            if ($otherLabel == $label) {
+                $in_cluster_distances[] = DataProcessing::cosineDistance($data[$i], $data[$j]);
             }
         }
 
-        $a /= max(array_count_values($labels)[$label] - 1, 1);
+        $a = array_sum($in_cluster_distances) / count($in_cluster_distances);
 
+        $nearest_cluster_distances = [];
         // Calculate the average distance of the point to all points in the nearest cluster
-        foreach (array_unique($labels) as $otherLabel) {
+        foreach (array_unique($labelList) as $otherLabel) {
             if ($otherLabel !== $label) {
-                $b = min($b, averageDistanceToCluster($data, $labels, $i, $otherLabel));
+                $nearest_cluster_distances[] = min($b, averageDistanceToCluster($data, $labelList, $i, $otherLabel));
             }
         }
+
+        $b = array_sum($nearest_cluster_distances) / count($nearest_cluster_distances);
 
         $silhouetteScores[] = ($b - $a) / max($a, $b);
     }

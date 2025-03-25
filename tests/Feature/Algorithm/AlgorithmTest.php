@@ -12,370 +12,105 @@ use NlpTools\Documents\TrainingSet;
 use NlpTools\Models\Lda;
 use StopWords\StopWords;
 
-use Phpml\FeatureExtraction\TfIdfTransformer;
-use Phpml\FeatureExtraction\TokenCountVectorizer;
-use Phpml\Tokenization\WordTokenizer;
+use function Pest\Faker\fake;
 
-use Rubix\ML\Datasets\Labeled;
-use Rubix\ML\Clusterers\KMeans;
-use Rubix\ML\Kernels\Distance\Cosine;
-use Rubix\ML\Clusterers\Seeders\PlusPlus;
-use Rubix\ML\CrossValidation\Reports\ContingencyTable;
-use Rubix\ML\CrossValidation\Reports\ConfusionMatrix;
-
-use App\DataProcessing;
-
-// test('performance test', function () {
-//     Tag::factory(100)->create();
-//     User::factory(5)->create();
-//     Recommendation::factory(200)->create();
-
-//     $client = new Recommend();
-//     $records = Recommendation::all()->toArray();
-
-//     shuffle($records);
-
-//     // Determine the size of the held-out set (e.g., 20% of the data)
-//     $holdoutSize = 0.2 * count($records);
-
-//     // Extract the held-out set from the existing training set
-//     $holdoutSet = array_slice($records, 0, $holdoutSize);
-
-//     foreach ($holdoutSet as $key => $value) {
-//         unset($records[$value['id']]);
-//     }
-
-//     $train = $records;
-
-//     // Define the number of folds for cross-validation
-//     $numFolds = 5;
-
-//     // Perform K-fold cross-validation
-//     for ($fold = 0; $fold < $numFolds; $fold++) {
-//         $holdoutRating = array_values($client->ranking($holdoutSet, 1));
-//         $trainRating = array_values($client->ranking($train, 1));
-
-//         dump($holdoutRating, $trainRating);
-//         $errors = [];
-//         for ($i = 0; $i < count($holdoutRating); $i++) {
-//             $error = pow($holdoutRating[$i] - $trainRating[$i], 2);
-//             $errors[] = $error;
-//         }
-
-//         // Calculate MSE for this fold
-//         $mse = array_sum($errors) / count($errors);
-//         $perFoldMSE[] = $mse;
-//     }
-//     dump($perFoldMSE);
-// });
-
-// test('lda test', function () {
-//     $stopwords = new StopWords('en');
-//     $str = $stopwords->clean(
-//         "
-//             Art and humanities have shared a deep-rooted connection throughout history, reflecting the
-//             essence of culture, emotions, and societal values. From ancient cave paintings to modern
-//             digital creations, art serves as a powerful medium of expression, communication, and
-//             introspection.
-//             Artists, whether painters, sculptors, musicians, writers, or performers, channel their creativity
-//             to convey thoughts, emotions, and messages that resonate with individuals and communities.
-//             Through their work, artists capture the beauty, struggles, and complexities of the human
-//             experience, fostering empathy and understanding across diverse perspectives.
-//             Art has the remarkable ability to transcend language barriers, geographical boundaries, and
-//             time, serving as a universal language that speaks to the depths of the human soul. It has the
-//             power to evoke a wide range of emotions, from joy and inspiration to sadness and
-//             introspection, prompting viewers to contemplate their own beliefs, values, and experiences.
-//             In addition to its emotional impact, art plays a crucial role in shaping cultural identities,
-//             challenging societal norms, and sparking conversations about important issues. Whether it's a
-//             thought-provoking painting, a poignant piece of music, or a captivating dance performance,
-//             art has the capacity to provoke change, foster dialogue, and inspire individuals to see the
-//             world through a different lens.
-//             As technology continues to evolve, new forms of artistic expression emerge, blurring the lines
-//             between traditional and contemporary art. Digital art, virtual reality experiences, interactive
-//             installations, and multimedia collaborations redefine how artists engage with audiences and
-//             explore innovative ways to communicate their narratives.
-//             Art and humanities are intertwined in a complex and profound relationship, with art serving as
-//             a mirror that reflects the diversity, creativity, and resilience of the human spirit. Through art,
-//             individuals can find solace, inspiration, and connection, forging bonds that transcend cultural
-//             boundaries and unite people in a shared appreciation for the beauty and complexity of the
-//             world.
-//             "
-//     );
-
-//     $tok = new WhitespaceTokenizer();
-
-//     $d = new TokensDocument(
-//         $tok->tokenize(
-//             $str,
-//         )
-//     );
-
-//     $_train = new TrainingSet();
-//     $_train->addDocument(
-//         '',
-//         $d
-
-//     );
-
-//     // Assuming you have already defined $train as your existing TrainingSet
-//     $documents = $d->getDocumentData(); // Get all documents from the existing training set
-
-//     // Shuffle the documents to randomize the order
-//     shuffle($documents);
-
-//     // Determine the size of the held-out set (e.g., 20% of the data)
-//     $heldOutSize = 0.2 * count($documents);
-
-//     // Extract the held-out set from the existing training set
-//     $heldOutDocuments = array_slice($documents, 0, $heldOutSize);
-
-//     // Create a new TrainingSet for the held-out documents
-//     $heldOutSet = new TrainingSet();
-//     foreach ($heldOutDocuments as $doc) {
-//         $heldOutSet->addDocument('', new TokensDocument(
-//             $tok->tokenize(
-//                 $doc,
-//             )
-//         ));
-//         unset($documents[$doc]);
-//     }
-
-//     // Remove the held-out documents from the original training set
-//     $train = new TrainingSet();
-//     foreach ($documents as $doc) {
-//         $train->addDocument(
-//             '', // the class is not used by the lda model
-//             new TokensDocument(
-//                 $tok->tokenize(
-//                     $doc,
-//                 )
-//             )
-//         );
-//     }
-
-//     $lda = new Lda(
-//         new DataAsFeatures(), // a feature factory to transform the document data
-//         5, // the number of topics we want
-//         1.2, // the dirichlet prior assumed for the per document topic distribution
-//         1.2  // the dirichlet prior assumed for the per word topic distribution
-//     );
-
-//     // Define the number of folds for cross-validation
-//     $numFolds = 5;
-//     $perFoldResults = [];
-
-//     // Perform K-fold cross-validation
-//     for ($fold = 0; $fold < $numFolds; $fold++) {
-//         // Split your dataset into training and validation sets for this fold
-
-//         // Train the LDA model on the training set
-//         $lda->train($train, 100); // You may need to adjust the number of iterations
-
-//         $evaluationResult = calculatePerplexity($lda, $heldOutSet);
-
-//         // Store the evaluation results for this fold
-//         $perFoldResults[] = $evaluationResult;
-//     }
-
-//     dump($perFoldResults);
-// });
-
-// function calculatePerplexity($ldaModel, $heldOutSet)
-// {
-//     $logLikelihood = 0.0;
-//     $numTokens = 0;
-
-//     $ldaModel->train($heldOutSet, 100);
-//     $logLikelihood = $ldaModel->getWordsPerTopicsProbabilities();
-//     foreach ($heldOutSet as $document) {
-//         $numTokens += count($document->getDocumentData());
-//     }
-
-//     dump($logLikelihood);
-//     return 0;
-// }
-
-
-test('k-means clustering performance', function () {
+test('performance test', function () {
     Tag::factory(100)->create();
-    User::factory(10)->create();
-    // Get the interests as string
-    $samples = User::select('id', 'interests')->get()->map(function ($item) {
-        return [$item['id'] => json_encode($item['interests'])];
-    })->reject(function ($item) {
-        return reset($item) === 'null';
-    })->toArray();
+    User::factory(5)->create();
+    Recommendation::factory(200)->create();
 
-    $values = array();
-    $keys = array();
-    foreach ($samples as $v) {
-        $values = array_merge($values, array_values($v));
-        $keys = array_merge($keys, array_keys($v));
-    }
-    $samples = array_combine($keys, $values);
+    $client = new Recommend();
+    $records = Recommendation::all()->toArray();
 
-    $vectorizer = new TokenCountVectorizer(new WordTokenizer());
-    $vectorizer->fit($samples);
-    $vectorizer->transform($samples);
+    $rankRating = $client->ranking($records, 1);
+    $euclideanRating = $client->euclidean($records, 1);
+    $slopeRating = $client->slopeOne($records, 1);
 
-    $tfidf = array_values($samples);
-    $transformer = new TfIdfTransformer($tfidf);
-    $transformer->transform($tfidf);
+    $euclideanRating = array_filter($euclideanRating, function ($value) {
+        return $value != 0;
+    });
 
-    $dataset = new Labeled($tfidf, $keys);
-    $arrDataset = array_combine($dataset->labels(), $dataset->samples());
+    $slopeRating = array_filter($slopeRating, function ($value) {
+        return $value != 0;
+    });
 
-    $maxClusters = 10;
+    // Generate random recommendations with random scores
+    $randomRecommendations = [];
+    $randomItems = array_rand(Tag::all()->toArray(), 50);
 
-    $prevWcss = null;
-    $wcssChanges = [];
-
-    $finalResult = [];
-    $finalK = 0;
-
-    for ($k = 1; $k <= $maxClusters; $k++) {
-        $estimator = new KMeans($k, kernel: new Cosine(), seeder: new PlusPlus(new Cosine()));
-        $estimator->train($dataset);
-
-        $report = new ContingencyTable();
-        $result = $report->generate($estimator->predict($dataset), $keys)->toArray();
-
-        foreach ($result as $id => $clusterData) {
-            $filtered = array_map(function ($subarray) {
-                return array_filter($subarray, function ($value) {
-                    return $value !== 0;
-                });
-            }, $result);
-
-            $result = $filtered;
-        }
-
-        $finalResult[$k] = $result;
-
-        $currentWcss = 0;
-
-        foreach ($estimator->centroids() as $clusterId => $clusterData) {
-            $_data = array_intersect_key($arrDataset, $result[$clusterId]);
-            foreach ($_data as $key => $value) {
-                $currentWcss += pow(DataProcessing::cosineDistance($value, $clusterData), 2);
-            }
-        }
-
-        if ($prevWcss != null) {
-            $wcssChanges[$k] = abs(($currentWcss - $prevWcss) / $prevWcss);
-        }
-
-        $prevWcss = $currentWcss;
-
-        if ($k == 1 && $currentWcss == 0) {
-            $finalK = 1;
-            break;
-        }
-
-        if ($k == 1) {
-            continue;
-        }
-
-        // Elbow point
-        if ((count($wcssChanges) > 1 && $wcssChanges[$k - 1] > $wcssChanges[$k]) || $wcssChanges[$k] == 1) {
-            $finalK = $k - 1;
-            break;
-        }
+    // dump($randomItems);
+    foreach ($randomItems as $item) {
+        $score = fake()->randomFloat(min: 1, max: 50);
+        $randomRecommendations[$item] = $score;
     }
 
-    $labels = [];
-
-    // Assign `group_id` from the result of clustering to the users
-    foreach ($finalResult[$finalK] as $id => $clusterData) {
-        foreach ($clusterData as $userId => $inCluster) {
-            if ($inCluster == 1) {
-                $labels[$userId] = $id;
-                User::find($userId)->update(['group_id' => $id]);
-            }
-        }
-    }
-
-    ksort($labels);
-
-    dump(calculateSilhouetteScore($arrDataset, $labels));
+    // dump(calculateEntropy($rankRating));
+    // dump(calculateEntropy($euclideanRating));
+    // dump(calculateEntropy($slopeRating));
+    // dump(calculateEntropy($randomRecommendations));
 });
 
-// function silhouetteScore($data, $labels, $distance_matrix)
-// {
-//     dump($distance_matrix);
-//     $num_samples = count($data);
-//     $silhouette_scores = [];
+/**
+ * https://barrenmagazine.com/for-the-love-of-dior/
+ */
 
-//     for ($i = 1; $i <= $num_samples; $i++) {
-//         $a = 0;
-//         $b = INF; // Initialize b to infinity
+test('lda test', function () {
+    $string = "
+    “¿Does the rope snap back?” Usvaldo asked his lover. He and Jorge were stuck in front of his muted television, muted to facilitate conversation. Conversation was as far as they’d gotten today. They hadn’t made love in three weeks. “Ask your mother,” Jorge said. The sarcasm smashed against Usvaldo’s head like a bottle. Usvaldo was desperate to keep his lover satisfied—he missed Jorge’s biceps, his dick veined like an old man’s hands—so he ignored the remark and the twinge of pain it caused. He continued on his tangent. “¿Does it snap back like a rubber band when it breaks the neck?” “No. It goes taut. You have to saw into it with a knife, it’s so tight. That’s the worst part, I hear. Trying to get them down from the rafters.” “Oh.” “Yeah.” “¿Do you want to go lie down with me?” “Don’t ask me again.” Nine days ago, Usvaldo’s mother had cut her brother down from the rafters. The rope was taut, just as Jorge said. His uncle had only been there, hanging, for a few hours, so his body went limp when she laid him on the ground. His face was as blue as a violet, the purple ribbon around his throat etched like a burn. Pressure, and gravity, and deep depression leave ugly results. Details that even mortuary makeup has trouble occulting. His mother barred at least a score from the funeral the next day. Friends who had cheated her brother, cousins who had judged him unforgivingly (he had been gay, like Usvaldo). But many showed up anyway, disguised in black, huge sunglasses hiding their faces, taut like rope. Usvaldo’s grandmother tossed herself on the marble crypt, turned and rolled like a pig in a spit. Usvaldo had gripped both of his mother’s elbows, determined to stop her from making further fools of their family. Jorge left without a farewell, but also without provocation. Usvaldo could stand chastity more than he could conflict. He was bad at conflict. He was a Libra, after all. In front of his vintage store, there was a package, stamped with many stamps, all the way from Singapore, from a gringo collector of designer items from the 80’s. The sliced-open box revealed YSL women’s blazers, linen Armani pants, and even men’s Woolworth’s coats that were too hot to wear here in Costa Rica. Sure, San José could get chilly during the rainy season, but Usvaldo had never seen a Costa Rican wear wool. He wasn’t even sure he’d ever seen a sheep in all his life. Looking up through the ultra-violet blanket of bougainvillea, Usvaldo noticed rain. Clouds grew fat and somber, ready to burst. He would only keep the shop open for a few hours. His patronesses didn’t do downpours. He’d had the store for seven months, and every day, his clientele grew—rich housewives who watched subtitled HGTV and Bravo; shows that declared vintage is back in style. They walked in tacky, bourgeoisie socialites, and walked out of his shop movie stars and punk rock princesses. They asked for his number to invite him to soirees. They never used it, nor acknowledged that fact when they returned with an even deeper desire to look like Linda Evangelista. Usvaldo kept his mouth shut because he needed his business to grow. He was determined to have a segment on Canal 6; he wanted those thin models to strut like mod girls down the studio runway. He wanted to bring culture here. To him, Costa Rica was a dearth of culture. He saw only the rice and beans of his countrymen, the Sunday masses, bull runs, comedians in bad drag, cars getting hit by trains. If that could all pass for culture, he’d save up enough money to move to Europe. Protests continue. A month has now passed that all public medical employees—doctors, nurses, surgeons, anesthesiologists, pharmacists, administrators, and even those who wash hospital bedding—refuse to work. More than four-thousand surgeries have been postponed. Those on universal healthcare with diabetes, cancer, and HIV have no had access to treatment. No insulin, chemo, or cocktails. Usvaldo looked down at his Galaxy phone and saw that his mother had left two turquoise check marks next to his WhatsApp message. She’d read his asking what time the final novenario would be, and not answered. Usvaldo wasn’t surprised. Besides her hollering at his uncle’s funeral, she hadn’t spoken to him since he opened the shop. What he was doing was bad luck, she said. He had brought bad luck on his family, because he was selling the clothes of the dead. He had driven the nail deeper by calling the store, “Resurrección.” It was true though. He did sell the clothes of the dead. Usvaldo scanned the daily Nación for obituaries of the wealthy—the elderly rich leave fashionable treasures. At these estate sales, Usvaldo and other private collectors waited for the unenthused lawyer to finish his tour and half-assed eulogy, then storm the place like shoppers after that American Thanksgiving. Usvaldo always knew exactly what he was looking for—interesting cuts, flashy buttons, sequins and mesh; minis from the 50’s, maxis from the 60’s, caftans from the 70’s. It was surprising how chic the dead could be. But there was always that one man at every sale who bought nothing. Who only wandered the house with wide eyes and gaunt lips. His hands always guarding his crotch like a samurai guards his sword. Griselda, his best friend at these morbid affairs, and he were convinced the man was a latent necrophile. Wishing that he could scrounge through panty drawers undisturbed. Usvaldo again checked the WhatsApp thread with his mother to see if she was typing an answer. She’d not been active for an hour. Then he received a voice message from Griselda: Playoooo, I’m on my way to the shop. Prepare to close it up, ¡we’re celebrating! ¡I’m bringing champagne and two flutes! Champagne. Two flutes. The day Usvaldo had come out of the closet, his uncle had presented him with a bottle of champagne and two flutes. He was fifteen, and sported a black eye from a confession that didn’t go the way he’d planned. His mother had taped a cold steak to his eye, so periodically, as the bubbles floated up to his nostrils, blood dripped onto his acid wash jeans. His uncle moved his fingers intentionally, arching them as he poured more champagne, his pinky perpetually avoiding the rest of his hand. He spoke in a way that comedians on the television would when making fun of faggots. A cliché. His uncle was a cliché, but Usvaldo had loved him, admired him and his clothes. He bought Versace off the rack and always wore Dior ties. When Usvaldo would ask him how much they cost, he’d keep silent, then change the subject. “One can’t reveal the cost of things, because then one would have to reveal their method of obtaining the means to pay for it. And honey, a lady never reveals her secrets.” Usvaldo had an hour until Griselda came with her good news. He prepared his steamer and pressed it to each of his uncle’s Dior ties. They’d been the only things he could save from his closet. His mother had shredded every garment with a giant toenail clipper and its file, because his uncle hadn’t been allowed to own scissors. All the satin jackets, raw silk shirts, cashmere and rayon fell victim to her rage. When she was done, she looked at Usvaldo, who had trouble seeing through his own tears. “You can’t sell this dead’s things now, ¿can you?” When his mother took a break to make herself coffee (she did so calmly, as if she’d forgotten the last hour of her life, the sweat on her brow, threads sticking out of her sweater like spines), Usvaldo had scrambled for a plastic Auto Mercado bag to fill with every necktie. Then he ran the five kilometers uphill, back to his shop, ties hanging out of the bags like banners. Usvaldo grew tired of steaming. His curls frizzed and his glasses fogged up. He closed up shop as Griselda demanded, and walked to the back of the store, climbed the spiral staircase into his flat, and sat at the kitchen counter to munch on bizcochos. Their crumbs were carried away by unabashed ants obsessed with the sweetness of corn and cheese. Usvaldo saw one of his own jockstraps on the countertop, folded triangularly like the flag of a dead soldier. Jorge had been doing this for weeks now, leaving Usvaldo’s articles of clothing after every sexless sojourn—band tees, mismatched socks, necklaces, and now a jockstrap. Anything Usvaldo had left at Jorge’s studio apartment. Usvaldo knew he owned seven. Six left. So, would that be their finish line? Would they have only six more visits between them? The president of the Medical Union, in response to criticisms that citizens are dying because of the protests, looks the camera and its man straight in eyes and the lens to say, “Even if that’s true, tell that to the Minister of Health. It all falls on him, because he won’t raise salaries.” Usvaldo and Jorge had met at El 13, downtown, one night when it rained so hard all the gays were wet before they could sweat through their rainbow-printed clothes. It was a post-Pride night; the parade only in its sixth year, still discovering its mission, forming an identity through that impetus forward. In a country of four million, five thousand people attended—not bad for this country so Catholic, its government still paid dues to the Vatican—and Usvaldo had accompanied his uncle who still dressed like a dandy, despite the sweltering June sun. His three-piece suit stayed unreasonably dry, and Usvaldo deduced that his uncle bathed in talcum powder, like an elephant staving off heat with dirt. His Dior tie that day was navy blue, with a pink tulip water colored onto the silk. The homosexuals and transsexuals posed for pictures with him, because he looked like the first gay to come out during the 19th century. Periodically, his uncle whispered that he was indeed much older than he looked, that he had been at Stonewall when it happened—back in ’69 when he had followed a gringo back to New York, but had been abandoned on the street—and had thrown the first brick. “Imagine that,” he said. “A Costa Rican threw the first brick, and of course they covered it up.” “¿How old were you?” Usvaldo asked. “Fifteen, just like you.” “I’m thirty, tío.” “Oh… well, you look fifteen, flaca.” His uncle tickled his bicep, psychically reminding Usvaldo that a thirty-year-old should have more muscle. “They’ll think you have AIDS,” his uncle said. Then he pointed to one of the floats, flanked by men who looked like doctors, and a few men whose cheeks had been hollowed out by medications. “They’ll think you snuck away from them to have fun. That you traded one cocktail for another.” At the bar, Usvaldo clutched his gimlet like a buzzer. But there were no right answers at gay bars. His pickup lines came from his uncle, who was too much of a queen to attract anyone. He’d gone home when the rain started. “This is Ferragamo, kid,” is all he’d said. Boys with braces drifted over to Usvaldo, rubbed their asses against his groin to squeeze past, but he had no interest in high-schoolers. He was waiting like a fisherman for a prize catch (someone tall, scruffy, muscular, masculine; with good teeth, and a job; the latter being optional, because he knew how the economy was). Then he saw Jorge at the other end of the bar, drinking a beer (masculine, check), towering over the twinks (tall, check), his shirt tight enough to barely conceal triceps (muscular, check, check). They both looked back at the deer’s head suspended above the bar, watching each other in its reflecting eyes—black marbles warping their handsome faces, their intentions. A dead thing reflects life just as much as it does anything else. “Waiting for Tonight” by Jennifer Lopez blared on the speakers as Jorge approached Usvaldo, and he couldn’t have asked for anything more romantically mundane. The crazies gathered in hoards, lip-syncing as if competing, snapping and shutting their fans like angry claws. As more faggots ran to the dance floor to grind, pant, and sip, Usvaldo and Jorge moved closer until they both stood beneath the deer-head altar. A net of green light descended upon them, and they began writhing like two caught animals, their mouths inseparable until last call. Their mouths reconnected until the next morning, when Jorge’s alarm grew so loud they both covered their ears to protect their hangovers. “Work,” Jorge said. “¿What do you do?” Usvaldo asked. “I’m a handyman.” “Judging from last night, I figured.” They both laughed and turned away from each other. All gay relationships were finite, and all gays knew that they moment they stopped being inside one another. That first night would be the closest they ever came to making each other happy. Even as Jorge helped repair the store’s cracking walls, squeaky gate and alarm system, Usvaldo felt any loyalty drift away; that net of green light and passion couldn’t keep him around indefinitely. No song, or taste of gin and throat can keep a gay man’s love forever. The president of the republic—who forced the courts to recognize gay marriage just a year ago—laments that the republic has such a law as to allow for up to 22% yearly increases in salaries for medical employees. It was a promise unable to be kept, as Costa Rica cannot sustain such a generous offer. His press conference is calm, the reporters surprisingly respectful, despite their family members rotting away in their homes. Even the middle-aged are dying from simple infections like pneumonia. Still the protests persist, as the government rebuffs ultimatums. It is either lose public healthcare altogether, or privatize. Griselda arrived with the champagne and two flutes like she’d promised. “¿How are you doing she asked?” He didn’t know whether she was asking about Jorge or his uncle. ¿Does the rope snap back? He wanted to ask, wanting to make sure. “I’m okay,” he said. “Business is slow because the rains have begun.” “You have to start buying raincoats for these airheads,” Griselda smiled. “Tell them Audrey Hepburn never left the house without one.” Usvaldo turned his head and winced. Small talk grated his temples—he and Griselda weren’t at the point in their friendship that they could dive straight into intimacy; they had to begin every meeting with questions about business, or the weather, or clientele, or light political discussions. Corruption, Americans, protests. Those sorts of things. Griselda popped the champagne like a gun. It was cheap, from Mas X Menos, probably, and unbearably sweet. When she ran to the bathroom, Usvaldo diluted his flute with water from the sink. “I’m moving,” she said, wringing her hands. She sat at the end of his fainting sofa, closest to the window overlooking the train tracks. Rain thrummed the loft’s zinc roof like fingers. “¿Where?” “Switzerland. Lucerne.” “¿Any particular reason?” “A man,” she grinned. “I’d never met with a Swiss with a chorizo before.” They burst into cackling, and Usvaldo clinked his glass against hers, genuinely happy for her. “I wish I could do that,” he said. “But you have this baby.” She stared at the mountains of unopened boxes, filled with moth-holed dresses and designer riches. “You’re building something. You’re building something no one else ever has here.” “I’m just a hoarder,” Usvaldo said. “A hoarder with taste.” “Maybe. ¿When do you leave?” “Tomorrow,” she said. “He’s flying me out first-class.” “You found yourself a rich European, and I’m stuck here with a broke Tico.” “You’ll find yours,” she winked. “A big Spaniard with a porn-star dick.” “To colonize my ass.” They wiped their tears with the base of their palms and held their stomachs with their glass-holding hands. Usvaldo was as raunchy and quick-witted as his uncle had been. Griselda had known him from the estate-sale circuit, too. “He lives on in you,” she said. They were silent until they finished the bottle, and she left with kisses on each of Usvaldo’s eyes. Night came with the noisy silence after rain. Gutters cradled streams to the sewers. Cicadas chirped hymns in the trees, and bats swallowed their sermons. A gecko scuttled in and out of the ceiling fan’s lamp, assaulting attracted moths. Usvaldo held the sputtering steamer head to one of his uncle’s neckties, refilling the tank every so often with chlorine-rich tap water that calcified the machine. After every steaming, Usvaldo tied them around his neck like nooses, every knot different, depending on the tie’s width. Four-in-hands, Windors, the plebian half-Windsors, spraying from his neck like petals. Limp, metallic, soft. But one tie proved especially stubborn—its wrinkles persisted even after fifteen minutes of steam. Usvaldo turned the fabric inside out, but stopped when he saw the edge of a paper jammed beyond the connecting thread. With delicate movements, he pried a note out of the silk. Kid, I’ve lied about many things, the paper read. Too many to count. But I’ll try to with all these pieces. Usvaldo began to excavate every tie—Dior labels littered the floor alongside scattered notes, each one sparser than the last. But maybe I’ll tell the truth, kid. You decide. At midnight, Usvaldo had finished connecting a collage on the linoleum floor. The harsh fluorescent lamps painted the room a blueish hue, and each letter shined like abalone. From left to right, top to bottom, they read: You should’ve known I’d be this dramatic, ¿right? I hated your mother, kid. Don’t tell her that, though. She burned my fingers when we were kids, held the stinging metal of a lighter to each tip every time our mother hit us. No one ever noticed the calluses. You’re as beautiful as I was, ¿did you know that? I was as beautiful as you back in my day. No, I didn’t throw the first brick at Stonewall. I threw the second. It’s Dior, or nothing. I hope the rope doesn’t snap back like a rubber band. Bury me next to my father. I loved him. Don’t ask me why I did it, kid. I did it because they gave me six months. I did it because I brought it upon myself. I did it because I was afraid of my own blood. I did it because I knew you’d be afraid of yours eventually. I did it because the only cocktail I wanted was an old fashioned. I’m old fashioned, as you know. ¿Do you remember our beach trips together? ¿The beautiful men? ¿The surf? ¿The moon in a dancing line with Venus? I told you they were the two brightest in the sky, but that one was brighter than the other, and I told you I was the moon and that you were Venus. I lied. You were the moon. You were always the moon. Usvaldo texted both Jorge and his mother. To whomever responded first, he’d unleash as much hatred as he could muster. If his mother called, he’d tell her how much his uncle had hated her. If Jorge answered, he’d tear into him with a tirade that he’d immediately regret. Usvaldo waited, spread eagle on the floor of letters that fluttered in the post-rain breeze. He felt as if he’d written his uncle’s suicide note, because his uncle had been too much of a coward to put it all together himself. That much responsibility is unfair. Expressing the dead’s feelings should never be forced upon the living. Then Usvaldo opened his WhatsApp and opened his uncle’s messages. Usvaldo left a scathing voice message that would never be delivered. Two gray check marks would punctuate it for eternity. His uncle’s final text had been, remember to mark up the prices. Costa Ricans will pay anything for taste. Seventeen groups of political syndicates decline negotiations of the law that allows for exponential grown of medical salaries. Congress attempts a new legislation for a fixed rate, but the menagerie of protestors refuses. An eighty-four-year-old man dies from a treatable disease, and is buried in the family plot outside of his house made of tin. To his own surprise, Usvaldo opened his shop at noon. The sun faced its belly to the Central Valley and evaporated all of yesterday’s rain. The new humidity battled the store’s air conditioning, and Usvaldo had to set out two more fans than usual. He wandered from rack to rack, pricing and hanging up the new pieces from Singapore. A YSL blazer speckled like a giraffe’s hide, Armani trousers of raw linen, iridescent as a blue morpho butterfly. The Dior neckties (gutted of notes), he draped on the arms of a male mannequin, so that from far away, it looked as if it had wings. The store, he decided, would be painted completely white. He would let the pieces speak for themselves. It would be a museum, not just a store anymore. He would be a curator, not just a merchant. Fashion is history, is art, and should belong in galleries. If he had the money to frame every garment, he would. But for now, the hangers would do. For now, he would act as the guide in this exhibit. A woman walked in with her young son. She was at most forty, and he fifteen. His eye sported a black tire around it. When her hands were closed, her red manicure extended up to her wrist. Neither of them spoke to Usvaldo, but he didn’t mind. He was used to be ignored by the well-off, and he took the opportunity to study them. But mother and son didn’t speak to each other, either. A palpable sadness pushed them away from each other, but kept them tethered, too. It was the rarely uttered instinct of a mother who wanted to abandon her child. Usvaldo watched the boy’s hips, and he understood. He looked at the black eye, and understood. The mother left the store without acknowledging Usvaldo. Her shadow lingered through the glass door. The boy waded for a few moments in the cool air that smelled of moth balls and vetiver. “Hey,” Usvaldo finally spoke. The boy didn’t answer. “¿See that mannequin?” The boy nodded. “Take whichever tie you want.” “I don’t have money.” “It doesn’t matter. Consider it a gift.” The shadow trapped in the doorway trembled. “It’s a gift,” Usvaldo said louder, past the boy who sashayed over to the mannequin. It had no head, so no noose could grip onto the neck for long. The boy grazed each necktie with his fingertips, not used to picking things out for himself. He settled on a navy blue one, with a pink tulip water colored onto the silk. “Thank you,” the boy said. “Come back,” Usvaldo said, but paused. “Come back if you ever want another. Or if you ever need to talk.” The mother’s shadow slunk out of the shop, and so too did the boy behind it, his uncle’s tie undulating like a flag from the boy’s back pocket. Tucked deep inside it was the only note Usvaldo had missed in his frenzy. You were always my light in the dark, it read. Doctors and nurses, scrambling to pick up the slack from their unionizing siblings, throw tons of medical clothing into the washing machines themselves. Their Guardias are multiplied exponentially, these 36-hour periods of standing, attending, and saving lives weighing heavily on their bones. They no longer recognize sleep patterns. A new study surfaces, revealing that the average life-span of doctors here is 50 years.
+    ";
 
-//         // Calculate average distance of point i to points in the same cluster (a)
-//         foreach ($labels as $j => $label) {
-//             if ($label == $labels[$i] && $i != $j) {
-//                 $a += $distance_matrix[$i][$j];
-//             }
-//         }
-//         $a /= max(1, array_count_values($labels)[$labels[$i]] - 1);
+    $string = preg_replace('/[^A-Za-z ]/', '', strip_tags($string));
+    $stopwords = new StopWords('en');
+    $str = $stopwords->clean(
+        $string
+    );
 
-//         // Calculate average distance of point i to points in the nearest cluster (b)
-//         foreach ($labels as $j => $label) {
-//             if ($label != $labels[$i]) {
-//                 $b = min($b, $distance_matrix[$i][$j]);
-//             }
-//         }
+    $tok = new WhitespaceTokenizer();
 
-//         $silhouette_scores[$i] = ($b - $a) / max($a, $b);
-//     }
+    $d = new TokensDocument(
+        $tok->tokenize(
+            $str,
+        )
+    );
 
-//     $silhouette_score = array_sum($silhouette_scores) / $num_samples;
-//     return $silhouette_score;
-// }
+    $corpus = $d->getDocumentData();
 
+    $train = new TrainingSet();
+    $train->addDocument(
+        '',
+        $d
 
+    );
 
-function calculateSilhouetteScore($data, $labels)
+    $wordCount = count($corpus);
+
+    $lda = new Lda(
+        new DataAsFeatures(), // a feature factory to transform the document data
+        10, // the number of topics we want
+        1, // the dirichlet prior assumed for the per document topic distribution
+        10  // the dirichlet prior assumed for the per word topic distribution
+    );
+
+    $lda->train($train, 100); // You may need to adjust the number of iterations
+    dump(perplexity($lda->getLogLikelihood(), $wordCount));
+});
+
+function perplexity($logLikelihood, $numOfTokens)
 {
-    $n = count($data);
-    $silhouetteScores = [];
-
-    for ($i = 1; $i <= $n; $i++) {
-        $a = 0;
-        $b = INF;
-        $label = $labels[$i];
-
-        // Calculate the average distance of the point to all other points in the same cluster
-        foreach ($labels as $j => $otherLabel) {
-            if ($otherLabel === $label) {
-                $a += DataProcessing::cosineDistance($data[$i], $data[$j]);
-            }
-        }
-
-        $a /= max(array_count_values($labels)[$label] - 1, 1);
-
-        // Calculate the average distance of the point to all points in the nearest cluster
-        foreach (array_unique($labels) as $otherLabel) {
-            if ($otherLabel !== $label) {
-                $b = min($b, averageDistanceToCluster($data, $labels, $i, $otherLabel));
-            }
-        }
-
-        $silhouetteScores[] = ($b - $a) / max($a, $b);
-    }
-
-    return array_sum($silhouetteScores) / $n;
+    $perplexity = exp(- ($logLikelihood / $numOfTokens));
+    return $perplexity;
 }
-function averageDistanceToCluster($data, $labels, $index, $clusterLabel)
-{
-    $sum = 0;
-    $count = 0;
 
-    foreach ($labels as $i => $label) {
-        if ($label === $clusterLabel) {
-            $sum += DataProcessing::cosineDistance($data[$index], $data[$i]);
-            $count++;
-        }
+function calculateEntropy($recommendedItems)
+{
+    $scores = array_values($recommendedItems);
+    $totalItems = count($recommendedItems);
+
+    $entropy = 0.0;
+    foreach ($scores as $score) {
+        $probability = $score / array_sum($scores);
+        $entropy -= $probability * log($probability, 2);
     }
 
-    return $sum / max($count, 1);
+    return $entropy;
 }

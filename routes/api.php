@@ -28,6 +28,8 @@ Route::prefix('content')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [ContentController::class, 'search']);
         Route::get('/complete/{id}', [ContentController::class, 'complete']);
+        Route::get('/bookmark/{id}', [ContentController::class, 'bookmark']);
+        Route::get('/get-bookmark', [ContentController::class, 'getBookmarks']);
     });
 });
 

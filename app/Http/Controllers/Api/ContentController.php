@@ -45,7 +45,7 @@ class ContentController extends Controller
 
         if (Recommendation::exists()) {
             $client = new Recommend();
-            $rank = $client->ranking(Recommendation::all()->toArray(), $request->user()->id);
+            $rank = $client->euclidean(Recommendation::all()->toArray(), $request->user()->id);
             $tags = Tag::whereIn('id', array_keys($rank));
 
             $tagNames = $tags->pluck('name')->toArray();
@@ -127,8 +127,39 @@ class ContentController extends Controller
             'status' => 'completed',
         ]);
 
+        History::where('content_id', $id)
+            ->where('user_id', $user->id)
+            ->where('status', 'bookmarked')
+            ->delete();
+
         DataProcessing::userClustering();
         return $this->success(message: 'Completed');
+    }
+
+    public function bookmark(Request $request, int $id)
+    {
+
+        $history = History::firstOrCreate([
+            'content_id' => $id,
+            'user_id' => $request->user()->id,
+            'status' => 'bookmarked',
+        ]);
+
+        if ($history->wasRecentlyCreated) {
+            return $this->success(message: 'Content is added to your bookmarks!');
+        } else {
+            $history->delete();
+            return $this->success(message: 'Content is removed from your bookmarks!');
+        }
+    }
+
+    public function getBookmarks(Request $request)
+    {
+        $contentIds = History::where('user_id', $request->user()->id)
+            ->where('status', 'bookmarked')
+            ->pluck('content_id');
+        $content = Content::whereIn('id', $contentIds)->latest('updated_at')->paginate(15);
+        return $this->success(data: $content);
     }
 
     /**

@@ -41,9 +41,9 @@ class DataProcessing
         );
         $lda = new Lda(
             new DataAsFeatures(), // a feature factory to transform the document data
-            5, // the number of topics we want
-            1.2, // the dirichlet prior assumed for the per document topic distribution
-            1.2  // the dirichlet prior assumed for the per word topic distribution
+            10, // the number of topics we want
+            0.5, // the dirichlet prior assumed for the per document topic distribution
+            5  // the dirichlet prior assumed for the per word topic distribution
         );
 
         // run the sampler 100 times
@@ -59,7 +59,7 @@ class DataProcessing
 
         arsort($joinedArr);
 
-        $topWords = array_keys(array_slice($joinedArr, 0, 5, true)); // Extract only the top 5 words
+        $topWords = array_keys(array_slice($joinedArr, 0, 10, true)); // Extract only the top 5 words
 
         $topWords = array_filter($topWords, function ($value) {
             return strlen($value) > 1;
@@ -158,11 +158,10 @@ class DataProcessing
 
             // Elbow point
             if ((count($wcssChanges) > 1 && $wcssChanges[$k - 1] > $wcssChanges[$k]) || $wcssChanges[$k] == 1) {
-                $finalK = $k - 1;
+                $finalK = $k;
                 break;
             }
         }
-
         $labels = [];
 
         // Assign `group_id` from the result of clustering to the users
@@ -170,53 +169,13 @@ class DataProcessing
             foreach ($clusterData as $userId => $inCluster) {
                 if ($inCluster == 1) {
                     $labels[$userId] = $id;
-                    // User::find($userId)->update(['group_id' => $id]);
+                    User::find($userId)->update(['group_id' => $id]);
                 }
             }
         }
 
         ksort($labels);
-        dd(calculateSilhouetteScore($arrDataset, $labels));
-    }
-
-
-    public static function tfidfTest()
-    {
-        $faker = \Faker\Factory::create();
-
-        // Number of fake records to generate
-        $numRecords = [1, 250, 500, 750, 1000];
-        $executionTime = [];
-
-        foreach ($numRecords as $num) {
-            $samples = [];
-            for ($i = 0; $i < $num; $i++) {
-                $samples[] = $faker->text();
-            }
-
-            $startTime = microtime(true);
-
-            $vectorizer = new TokenCountVectorizer(new WordTokenizer());
-            $vectorizer->fit($samples);
-            $vectorizer->transform($samples);
-
-            $tfidf = array_values($samples);
-            $transformer = new TfIdfTransformer($tfidf);
-            $transformer->transform($tfidf);
-
-            $endTime = microtime(true);
-            $executionTime[] = $endTime - $startTime;
-        }
-
-
-
-        dd(array_combine($numRecords, $executionTime));
-
-
-        return view('test.test', [
-            'inputData' => json_encode($numRecords),
-            'timeData' => json_encode($executionTime),
-        ]);
+        // dd(calculateSilhouetteScore($arrDataset, $labels));
     }
 
     public static function cosineDistance(&$A, &$B)
