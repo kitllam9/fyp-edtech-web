@@ -45,7 +45,7 @@ return [
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),
-            'host' => env('RDS_HOST', '127.0.0.1'),
+            'host' => env('RDS_HOSTNAME', '127.0.0.1'),
             'port' => env('RDS_PORT', '3306'),
             'database' => env('RDS_DB_NAME', 'laravel'),
             'username' => env('RDS_USERNAME', 'root'),
