@@ -8,6 +8,7 @@ use App\Http\Controllers\QuestController;
 use App\Http\Controllers\QueueController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 
@@ -52,6 +53,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+
 Route::any('/cluster', [DataProcessing::class, 'userClustering']);
+
+Route::any('/migrate', function () {
+    Artisan::call('migrate');
+});
 
 require __DIR__ . '/auth.php';
