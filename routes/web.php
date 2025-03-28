@@ -56,8 +56,5 @@ Route::middleware('auth')->group(function () {
 
 Route::any('/cluster', [DataProcessing::class, 'userClustering']);
 
-Route::any('/migrate', function () {
-    Artisan::call('migrate');
-});
 
 require __DIR__ . '/auth.php';

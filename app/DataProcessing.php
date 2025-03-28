@@ -162,7 +162,8 @@ class DataProcessing
                 break;
             }
         }
-        $labels = [];
+
+        // $labels = [];
 
         // Assign `group_id` from the result of clustering to the users
         foreach ($finalResult[$finalK] as $id => $clusterData) {
@@ -174,7 +175,7 @@ class DataProcessing
             }
         }
 
-        ksort($labels);
+        // ksort($labels);
         // dd(calculateSilhouetteScore($arrDataset, $labels));
     }
 

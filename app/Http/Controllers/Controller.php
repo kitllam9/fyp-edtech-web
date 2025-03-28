@@ -11,8 +11,8 @@ abstract class Controller
     ) {
         return response()->json([
             'success' => true,
-            'data' => $data,
             'message' => $message,
+            'data' => $data,
         ], $statusCode);
     }
 
@@ -24,8 +24,8 @@ abstract class Controller
     ) {
         return response()->json([
             'success' => false,
-            'data' => $data,
             'message' => $message,
+            'data' => $data,
             'errors' => $errors,
         ], $statusCode);
     }

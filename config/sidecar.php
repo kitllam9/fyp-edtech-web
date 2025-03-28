@@ -7,7 +7,7 @@ return [
      * All of your function classes that you'd like to deploy go here.
      */
     'functions' => [
-        \App\Sidecar\OgImage::class,
+        // \App\Sidecar\OgImage::class,
     ],
 
     /*
