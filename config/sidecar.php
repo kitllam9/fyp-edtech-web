@@ -7,8 +7,7 @@ return [
      * All of your function classes that you'd like to deploy go here.
      */
     'functions' => [
-        // \App\Sidecar\RenderOgImage::class,
-        // \App\Sidecar\ProcessThumbnail::class,
+        \App\Sidecar\OgImage::class,
     ],
 
     /*
@@ -68,17 +67,17 @@ return [
      * Unfortunately you cannot rely on the keys available in the Vapor
      * runtime, as those do not have the right permissions.
      */
-    'aws_key' => env('SIDECAR_ACCESS_KEY_ID'),
+    'aws_key' => env('AWS_ACCESS_KEY_ID'),
 
     /*
      * Your AWS secret key.
      */
-    'aws_secret' => env('SIDECAR_SECRET_ACCESS_KEY'),
+    'aws_secret' => env('AWS_SECRET_ACCESS_KEY'),
 
     /*
      * The region where your Lambdas will be deployed.
      */
-    'aws_region' => env('SIDECAR_REGION'),
+    'aws_region' => env('AWS_REGION'),
 
     /*
      * The bucket that temporarily holds your function's ZIP files
