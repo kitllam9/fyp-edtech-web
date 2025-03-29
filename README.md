@@ -20,6 +20,7 @@
     ```
     Then:</br></br>
     ```
+    php artisan storage:link
     php artisan migrate
     npm run build
     ```
