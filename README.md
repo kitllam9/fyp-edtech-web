@@ -26,6 +26,8 @@
     ```
 - And finally, start hosting the application by running `php artisan serve`.
 
+Note: you may encounter permission issues if the project is hosted on MacOS. Please make sure you have granted the directory read/write permissions for creating PDF files in that case.  
+
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
