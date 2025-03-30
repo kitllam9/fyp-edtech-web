@@ -20,10 +20,13 @@
     ```
     Then:</br></br>
     ```
+    php artisan storage:link
     php artisan migrate
     npm run build
     ```
 - And finally, start hosting the application by running `php artisan serve`.
+
+Note: you may encounter permission issues if the project is hosted on MacOS. Please make sure you have granted the directory read/write permissions for creating PDF files in that case.  
 
 ## License
 
