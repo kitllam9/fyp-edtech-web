@@ -166,7 +166,7 @@ class ContentController extends Controller
         }, json_decode($content->tags)));
 
         if ($content->pdf_url) {
-            $pdfContent = File::get(storage_path('app\public\pdf\\' . $content->id . '\\' . snakeTitle($content->title) . '.txt'));
+            $pdfContent = File::get(storage_path('app/public/pdf/' . $content->id . '/' . snakeTitle($content->title) . '.txt'));
         }
 
         return view('content.edit', [
