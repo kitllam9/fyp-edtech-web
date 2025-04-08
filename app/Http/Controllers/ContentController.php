@@ -68,7 +68,9 @@ class ContentController extends Controller
 
             $pdfId = $request->input('test') ? uniqid() : DB::select("SHOW TABLE STATUS LIKE 'content'")[0]->Auto_increment;
             $dir = 'app/public/pdf/' . $pdfId . '/';
-            File::makeDirectory(storage_path('app/public/pdf/' . $pdfId));
+            if (!File::exists(storage_path('app/public/pdf/'))) {
+                File::makeDirectory(storage_path('app/public/pdf/'));
+            }
 
             $pdfFilePath = storage_path($dir . $snake_title . '.pdf');
             $htmlFilePath = storage_path($dir . $snake_title . '.txt');
@@ -141,9 +143,7 @@ class ContentController extends Controller
         );
 
         return redirect()
-            ->route('content')
-            // This is purely for testing purposes
-            ->with('pdf_path', '\pdf\\' . $pdfId . '\\' . basename($pdfFilePath));
+            ->route('content');
     }
 
 

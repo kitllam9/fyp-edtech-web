@@ -91,11 +91,6 @@
                                     </th>
                                     <th class="px-4 py-3 border border-gray-300 dark:border-gray-700">
                                         <x-input-label>
-                                            {{ __('Type') }}
-                                        </x-input-label>
-                                    </th>
-                                    <th class="px-4 py-3 border border-gray-300 dark:border-gray-700">
-                                        <x-input-label>
                                             {{ __('Answer') }}
                                         </x-input-label>
                                     </th>

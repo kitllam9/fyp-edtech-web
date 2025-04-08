@@ -17,8 +17,8 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->enum('status', ['completed', 'bookmarked'])->default('completed');
 
-            $table->foreign('content_id')->references('id')->on('content');
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('content_id')->references('id')->on('content')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

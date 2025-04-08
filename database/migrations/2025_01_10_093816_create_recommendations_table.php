@@ -17,8 +17,8 @@ return new class extends Migration
             $table->integer('score');
             $table->unsignedBigInteger('user_id');
 
-            $table->foreign('product_id')->references('id')->on('tags');
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('product_id')->references('id')->on('tags')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->unique(['product_id', 'user_id']);
         });
     }
