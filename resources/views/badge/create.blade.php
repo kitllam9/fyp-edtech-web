@@ -29,12 +29,6 @@
                         <x-text-input id="description" class="block mt-2 w-full" type="text" name="description" required />
                     </div>
                     <x-input-error :messages="$errors->get('description')" class="my-2" />
-                    <div class="mb-4">
-                        <x-input-label>
-                            {{ __('Type') }}
-                        </x-input-label>
-                        <x-select id="type" name="type" class="mt-2" :options="$badge_type" />
-                    </div>
                     <x-input-error :messages="$errors->get('type')" class="my-2" />
                     <div class="mb-4">
                         <x-input-label>

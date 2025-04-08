@@ -31,13 +31,6 @@
                     <x-input-error :messages="$errors->get('description')" class="my-2" />
                     <div class="mb-4">
                         <x-input-label>
-                            {{ __('Type') }}
-                        </x-input-label>
-                        <x-select id="type" name="type" class="mt-2" :options="$badge_type" :defaultValue="$badge->type" />
-                    </div>
-                    <x-input-error :messages="$errors->get('type')" class="my-2" />
-                    <div class="mb-4">
-                        <x-input-label>
                             {{ __('Target Amount') }}
                         </x-input-label>
                         <x-text-input id="target" class="block mt-2 w-full" type="number" name="target" value="{{ $badge->target }}" required />

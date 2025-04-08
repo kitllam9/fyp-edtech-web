@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('content_id');
             $table->unsignedBigInteger('user_id');
             $table->enum('status', ['completed', 'bookmarked'])->default('completed');
+            $table->double('score')->nullable();
 
             $table->foreign('content_id')->references('id')->on('content')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

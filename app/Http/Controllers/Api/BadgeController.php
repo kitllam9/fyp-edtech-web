@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Badge;
+use App\Models\History;
+use App\Models\Content;
 use Illuminate\Http\Request;
 
 class BadgeController extends Controller
@@ -26,10 +28,13 @@ class BadgeController extends Controller
         ]);
 
         // Get unearned badges, then check if user has met the target points
-        $badges = Badge::where('type', 'points')->whereNotIn('id', $user->badges ?? [])->get();
+        $allUnearned = Badge::whereNotIn('id', $user->badges ?? []);
+        $pointBadges = $allUnearned->where('type', 'points')
+            ->get();
+        
         $earnedBadgeIds = [];
         $targets = [];
-        foreach ($badges as $badge) {
+        foreach ($pointBadges as $badge) {
             if ($user->points < $badge->target) {
                 $targets[] = $badge->target;
                 break;

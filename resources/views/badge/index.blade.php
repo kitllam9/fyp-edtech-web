@@ -34,9 +34,6 @@
                                 </span>
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {{ __('Type') }}
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 {{ __('Target') }}
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -48,7 +45,6 @@
                         @foreach($badges as $b)
                         <tr>
                             <td class="px-6 py-4 max-w-24 whitespace-nowrap">{{ $b->name }}</td>
-                            <td class="px-6 py-4 max-w-24 whitespace-nowrap">{{ ucwords($b->type) }}</td>
                             <td class="px-6 py-4 max-w-24 whitespace-nowrap">{{ $b->target }}</td>
                             <td class="px-6 py-4 max-w-24 whitespace-nowrap">
                                 <form method="POST" class="inline" action="{{ route('badge.delete', $b) }}">
