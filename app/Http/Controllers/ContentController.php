@@ -72,6 +72,10 @@ class ContentController extends Controller
                 File::makeDirectory(storage_path('app/public/pdf/'));
             }
 
+            if (!File::exists(storage_path($dir))) {
+                File::makeDirectory(storage_path($dir));
+            }
+
             $pdfFilePath = storage_path($dir . $snake_title . '.pdf');
             $htmlFilePath = storage_path($dir . $snake_title . '.txt');
 
