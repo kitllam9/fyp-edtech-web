@@ -29,12 +29,12 @@
 Note: you may encounter permission issues if the project is hosted on MacOS. Please make sure you have granted the directory read/write permissions for creating PDF files in that case.  
 
 # Screenshots
-![alt text](https://imgur.com/S986wm4.png)
-![alt text](https://imgur.com/RKJ6OnR.png)
-![alt text](https://imgur.com/XC4GNSU.png)
-![alt text](https://imgur.com/tdiOUOH.png)
-![alt text](https://imgur.com/KrQ2zVP.png)
-![alt text](https://imgur.com/IQQuDrA.png)
+![alt text](https://imgur.com/S986wm4.png)<br>
+![alt text](https://imgur.com/RKJ6OnR.png)<br>
+![alt text](https://imgur.com/XC4GNSU.png)<br>
+![alt text](https://imgur.com/tdiOUOH.png)<br>
+![alt text](https://imgur.com/KrQ2zVP.png)<br>
+![alt text](https://imgur.com/IQQuDrA.png)<br>
 
 ## License
 
